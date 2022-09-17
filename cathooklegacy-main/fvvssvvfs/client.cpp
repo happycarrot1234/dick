@@ -17,7 +17,7 @@ ulong_t __stdcall Client::init(void* arg) {
 
 	g_csgo.m_engine->ExecuteClientCmd((XOR("clear")));
 	g_csgo.m_engine->ExecuteClientCmd((XOR("fps_max 0")));
-	g_notify.add(tfm::format(XOR("		⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀welcome to Cathook              \n"), g_cl.m_user));
+	g_notify.add(tfm::format(XOR("---------------Welcome to Cathook---------------\n"), g_cl.m_user));
 	return 1;
 }
 
@@ -28,7 +28,21 @@ void Client::DrawHUD() {
 		return;
 	Color menu = g_menu.main.config.menu_color.get();
 
-	std::string text = tfm::format(XOR("cathook | debug"));
+	time_t tt = std::time(nullptr);
+	std::ostringstream time;
+	time << std::put_time(std::localtime(&tt), ("%H:%M:%S"));
+	std::string text = tfm::format(XOR("Cathook.pub [Debug] |  Build Date: " __DATE__ " | %s"), time.str().data());
+	if (g_csgo.m_engine->IsInGame())
+	{
+		// get round trip time in milliseconds.
+		int ms = std::max(0, (int)std::round(g_cl.m_latency * 1000.f));
+
+		// get tickrate.
+		int rate = (int)std::round(1.f / g_csgo.m_globals->m_interval);
+
+		text = tfm::format(XOR("Cathook.pub [Debug] |  Build Date: " __DATE__ "  | delay: %ims | rate: %i | %s"), ms, rate, time.str().data());
+	}
+
 	render::FontSize_t size = render::esp.size(text);
 
 	// background.
