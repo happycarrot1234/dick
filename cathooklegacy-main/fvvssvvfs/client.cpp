@@ -17,7 +17,8 @@ ulong_t __stdcall Client::init(void* arg) {
 
 	g_csgo.m_engine->ExecuteClientCmd((XOR("clear")));
 	g_csgo.m_engine->ExecuteClientCmd((XOR("fps_max 0")));
-	g_notify.add(tfm::format(XOR("		⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀welcome to Cathook              \n"), g_cl.m_user));
+
+
 	return 1;
 }
 
