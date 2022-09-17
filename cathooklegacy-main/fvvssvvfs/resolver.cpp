@@ -469,7 +469,7 @@ void Resolver::ResolveStand(AimPlayer* data, LagRecord* record) {
 				data->m_body_update = record->m_anim_time + 1.1f;
 
 				// set the resolve mode.
-				//iPlayers[record->m_player->index()] = false;
+				iPlayers[record->m_player->index()] = false;
 				record->m_mode = Modes::RESOLVE_BODY;
 			}
 
@@ -591,7 +591,7 @@ void Resolver::ResolveAir(AimPlayer* data, LagRecord* record, Player* player) {
 		// set this for completion.
 		// so the shot parsing wont pick the hits / misses up.
 		// and process them wrongly.
-		record->m_mode = Modes::RESOLVE_LASTMOVE;
+		record->m_mode = Modes::RESOLVE_AIR;
 
 		// invoke our stand resolver.
 		LastMoveLby(record, data, player);
@@ -949,6 +949,60 @@ void Resolver::AntiFreestand(Player* pEnemy, float& y, float flLeftDamage, float
 		}
 	}
 }
+
+void Resolver::lby_update_checks(Player* entity, LagRecord* a, AimPlayer* b, LagRecord* record) {
+
+	// pointer for easy access.
+	LagRecord* move = &b->m_walk_record;
+	float ave_moving_lby = move->m_body;
+
+	float _delta_a = abs(a->m_eye_angles.y - ave_moving_lby);
+	float _delta_b = abs(a->m_body - ave_moving_lby);
+	float _delta_c = abs(b->m_body - ave_moving_lby);
+	record->m_mode = Modes::RESOLVE_BODY;
+	if (_delta_a <= _delta_b && _delta_a <= _delta_c && _delta_a <= 20) {
+		return;
+	}
+
+	/*if (_delta_a(b->m_body, ave_moving_lby, 20) && similar(a->m_body, ave_moving_lby, 20)) {
+		float ave = b->m_body + a->m_body;
+
+		if (ave != 0) ave /= 2;
+		a->m_eye_angles.y = ave;
+		return;
+	}*/
+
+	if (_delta_b < _delta_c && _delta_b <= 20) {
+		a->m_eye_angles.y = b->m_body;
+		return;
+	}
+
+	if (_delta_c < _delta_b && _delta_c <= 20) {
+		a->m_eye_angles.y = a->m_body;
+		return;
+	}
+
+	a->m_eye_angles.y = entity->GetAbsAngles().y;
+}
+
+bool Resolver::can_backtrack(Player* entity) {
+	float lby_update_time = entity->m_flSimulationTime();
+	float current_time = g_csgo.m_globals->m_curtime;
+
+	return ((current_time - lby_update_time) <= 0.2f);
+}
+/*
+void Resolver::store(Player* entity, float yaw)
+{
+	records[entity->index()].push_front(SDK::tickrecord_t(entity, yaw));
+	if (entity->GetVelocity().Length2D() > 40.f && entity->GetFlags() & FL_ONGROUND) {
+		moving_records[entity->index()].push_front(SDK::tickrecord_t(entity, yaw));
+	}
+
+	if (records[entity->index()].size() > 5) records[entity->index()].pop_back();
+	if (moving_records[entity->index()].size() > 10) moving_records[entity->index()].pop_back();
+}*/
+
 
 /*
 bool Resolver::IdealFreestand(Player* entity, float& yaw, int damage_tolerance)    /// perfect resolving if is not urine

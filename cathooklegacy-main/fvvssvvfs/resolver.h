@@ -50,6 +50,22 @@ public:
 
 	void AntiFreestand(Player* pEnemy, float& y, float flLeftDamage, float flRightDamage, float flRightFraction, float flLeftFraction, float flToMe, int& iShotsMissed);
 
+	void lby_update_checks(Player* entity, LagRecord* a, AimPlayer* b, LagRecord* record);
+
+//	void lby_update_checks(Player* entity, LagRecord* a, AimPlayer* b);
+
+	bool can_backtrack(Player* entity);
+
+	float get_yaw_while_breaking(Player* entity);
+
+	bool breaking_lby(AimPlayer* entity, float yaw);
+
+	//bool breaking_lby(Player* entity, float yaw);
+
+	//bool breaking_lby(Player* entity);
+
+	void store(Player* entity, float yaw);
+
 public:
 	std::array< vec3_t, 64 > m_impacts;
 	int	   iPlayers[64];
@@ -77,6 +93,8 @@ public:
 	};
 
 	PlayerResolveRecord player_resolve_records[33];
+	//void perform_delta_checks(CBaseEntity* entity, SDK::tickrecord_t _previous, SDK::tickrecord_t _current);
+	//void perform_delta_checks(Player* entity, SDK::tickrecord_t _previous, SDK::tickrecord_t _current);
 };
 
 extern Resolver g_resolver;
