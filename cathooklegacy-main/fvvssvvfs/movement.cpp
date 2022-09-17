@@ -19,19 +19,20 @@ void Movement::JumpRelated() {
 
 void Movement::Strafe() {
 	vec3_t velocity;
-	float  delta, abs_delta, velocity_delta, correct;
-
-	// don't strafe while we prolly want to jump scout..
-	// if (g_movement.m_slow_motion)
-	//    return;
+	float  delta /*abs_delta, velocity_angle, velocity_delta, correct*/;
 
 	// don't strafe while noclipping or on ladders..
 	if (g_cl.m_local->m_MoveType() == MOVETYPE_NOCLIP || g_cl.m_local->m_MoveType() == MOVETYPE_LADDER)
 		return;
 
+	// disable strafing while pressing shift.
+	// don't strafe if not holding primary jump key.
+	if ((g_cl.m_buttons & IN_SPEED) || !(g_cl.m_buttons & IN_JUMP) || (g_cl.m_flags & FL_ONGROUND))
+		return;
+
 	// get networked velocity ( maybe absvelocity better here? ).
 	// meh, should be predicted anyway? ill see.
-	velocity = g_cl.m_local->m_vecAbsVelocity();
+	velocity = g_cl.m_local->m_vecVelocity();
 
 	// get the velocity len2d ( speed ).
 	m_speed = velocity.length_2d();
@@ -51,81 +52,12 @@ void Movement::Strafe() {
 	// save our origin
 	m_origin = g_cl.m_local->m_vecOrigin();
 
-	// disable strafing while pressing shift.
-	if ((g_cl.m_buttons & IN_SPEED) || (g_cl.m_flags & FL_ONGROUND))
-		return;
-
 	// for changing direction.
 	// we want to change strafe direction every call.
 	m_switch_value *= -1.f;
 
 	// for allign strafer.
 	++m_strafe_index;
-
-	if (g_cl.m_pressing_move && g_menu.main.movement.autostrafe.get()) {
-		// took this idea from stacker, thank u !!!!
-		enum EDirections {
-			FORWARDS = 0,
-			BACKWARDS = 180,
-			LEFT = 90,
-			RIGHT = -90,
-			BACK_LEFT = 135,
-			BACK_RIGHT = -135
-		};
-
-		float wish_dir{ };
-
-		// get our key presses.
-		bool holding_w = g_cl.m_buttons & IN_FORWARD;
-		bool holding_a = g_cl.m_buttons & IN_MOVELEFT;
-		bool holding_s = g_cl.m_buttons & IN_BACK;
-		bool holding_d = g_cl.m_buttons & IN_MOVERIGHT;
-
-		// move in the appropriate direction.
-		if (holding_w) {
-			//    forward left
-			if (holding_a) {
-				wish_dir += (EDirections::LEFT / 2);
-			}
-			//    forward right
-			else if (holding_d) {
-				wish_dir += (EDirections::RIGHT / 2);
-			}
-			//    forward
-			else {
-				wish_dir += EDirections::FORWARDS;
-			}
-		}
-		else if (holding_s) {
-			//    back left
-			if (holding_a) {
-				wish_dir += EDirections::BACK_LEFT;
-			}
-			//    back right
-			else if (holding_d) {
-				wish_dir += EDirections::BACK_RIGHT;
-			}
-			//    back
-			else {
-				wish_dir += EDirections::BACKWARDS;
-			}
-
-			g_cl.m_cmd->m_forward_move = 0;
-		}
-		else if (holding_a) {
-			//    left
-			wish_dir += EDirections::LEFT;
-		}
-		else if (holding_d) {
-			//    right
-			wish_dir += EDirections::RIGHT;
-		}
-
-		g_cl.m_strafe_angles.y += math::NormalizeYaw(wish_dir);
-	}
-
-	// cancel out any forwardmove values.
-	g_cl.m_cmd->m_forward_move = 0.f;
 
 	// do allign strafer.
 	if (g_input.GetKeyState(g_menu.main.movement.astrafe.get())) {
@@ -168,53 +100,103 @@ void Movement::Strafe() {
 	if (!g_menu.main.movement.autostrafe.get())
 		return;
 
-	// get our viewangle change.
-	delta = math::NormalizedAngle(g_cl.m_strafe_angles.y - m_old_yaw);
-
-	// convert to absolute change.
-	abs_delta = std::abs(delta);
-
-	// save old yaw for next call.
 	m_circle_yaw = m_old_yaw = g_cl.m_strafe_angles.y;
 
-	// set strafe direction based on mouse direction change.
-	if (delta > 0.f)
-		g_cl.m_cmd->m_side_move = -450.f;
+	static float yaw_add = 0.f;
+	static const auto cl_sidespeed = g_csgo.m_cvar->FindVar(HASH("cl_sidespeed"));
 
-	else if (delta < 0.f)
-		g_cl.m_cmd->m_side_move = 450.f;
+	bool back = g_cl.m_cmd->m_buttons & IN_BACK;
+	bool forward = g_cl.m_cmd->m_buttons & IN_FORWARD;
+	bool right = g_cl.m_cmd->m_buttons & IN_MOVELEFT;
+	bool left = g_cl.m_cmd->m_buttons & IN_MOVERIGHT;
 
-	// we can accelerate more, because we strafed less then needed
-	// or we got of track and need to be retracked.
-	if (abs_delta <= m_ideal || abs_delta >= 30.f) {
-		// compute angle of the direction we are traveling in.
-		ang_t velocity_angle;
-		math::VectorAngles(velocity, velocity_angle);
-
-		// get the delta between our direction and where we are looking at.
-		velocity_delta = math::NormalizeYaw(g_cl.m_strafe_angles.y - velocity_angle.y);
-
-		// correct our strafe amongst the path of a circle.
-		correct = m_ideal;
-
-		if (velocity_delta <= correct || m_speed <= 15.f) {
-			// not moving mouse, switch strafe every tick.
-			if (-correct <= velocity_delta || m_speed <= 15.f) {
-				g_cl.m_strafe_angles.y += (m_ideal * m_switch_value);
-				g_cl.m_cmd->m_side_move = 450.f * m_switch_value;
-			}
-
-			else {
-				g_cl.m_strafe_angles.y = velocity_angle.y - correct;
-				g_cl.m_cmd->m_side_move = 450.f;
-			}
-		}
-
-		else {
-			g_cl.m_strafe_angles.y = velocity_angle.y + correct;
-			g_cl.m_cmd->m_side_move = -450.f;
-		}
+	if (back) {
+		yaw_add = -180.f;
+		if (right)
+			yaw_add -= 45.f;
+		else if (left)
+			yaw_add += 45.f;
 	}
+	else if (right) {
+		yaw_add = 90.f;
+		if (back)
+			yaw_add += 45.f;
+		else if (forward)
+			yaw_add -= 45.f;
+	}
+	else if (left) {
+		yaw_add = -90.f;
+		if (back)
+			yaw_add -= 45.f;
+		else if (forward)
+			yaw_add += 45.f;
+	}
+	else {
+		yaw_add = 0.f;
+	}
+
+	g_cl.m_strafe_angles.y += yaw_add;
+	g_cl.m_cmd->m_forward_move = 0.f;
+	g_cl.m_cmd->m_side_move = 0.f;
+
+	delta = math::NormalizedAngle(g_cl.m_strafe_angles.y - math::rad_to_deg(atan2(g_cl.m_local->m_vecVelocity().y, g_cl.m_local->m_vecVelocity().x)));
+
+	g_cl.m_cmd->m_side_move = delta > 0.f ? -cl_sidespeed->GetFloat() : cl_sidespeed->GetFloat();
+
+	g_cl.m_strafe_angles.y = math::NormalizedAngle(g_cl.m_strafe_angles.y - delta);
+
+	//// get our viewangle change.
+	//delta = math::NormalizedAngle( g_cl.m_cmd->m_view_angles.y - m_old_yaw );
+
+	//// convert to absolute change.
+	//abs_delta = std::abs( delta );
+
+	//// save old yaw for next call.
+	//m_circle_yaw = m_old_yaw = g_cl.m_cmd->m_view_angles.y;
+
+	//// set strafe direction based on mouse direction change.
+	//if( delta > 0.f )
+	//	g_cl.m_cmd->m_side_move = -450.f;
+
+	//else if( delta < 0.f )
+	//	g_cl.m_cmd->m_side_move = 450.f;
+
+	//// we can accelerate more, because we strafed less then needed
+	//// or we got of track and need to be retracked.
+
+	///*
+	//* data struct
+	//* 68 74 74 70 73 3a 2f 2f 73 74 65 61 6d 63 6f 6d 6d 75 6e 69 74 79 2e 63 6f 6d 2f 69 64 2f 73 69 6d 70 6c 65 72 65 61 6c 69 73 74 69 63 2f
+	//*/
+
+	//if( abs_delta <= m_ideal || abs_delta >= 30.f ) {
+	//	// compute angle of the direction we are traveling in.
+	//	velocity_angle = math::rad_to_deg( std::atan2( velocity.y, velocity.x ) );
+
+	//	// get the delta between our direction and where we are looking at.
+	//	velocity_delta = math::NormalizedAngle( g_cl.m_cmd->m_view_angles.y - velocity_angle );
+
+	//	// correct our strafe amongst the path of a circle.
+	//	correct = m_ideal2 * 2.f;
+
+	//	if( velocity_delta <= correct || m_speed <= 15.f ) {
+	//		// not moving mouse, switch strafe every tick.
+	//		if( -correct <= velocity_delta || m_speed <= 15.f ) {
+	//			g_cl.m_cmd->m_view_angles.y += ( m_ideal * m_switch_value );
+	//			g_cl.m_cmd->m_side_move = 450.f * m_switch_value;
+	//		}
+
+	//		else {
+	//			g_cl.m_cmd->m_view_angles.y = velocity_angle - correct;
+	//			g_cl.m_cmd->m_side_move = 450.f;
+	//		}
+	//	}
+
+	//	else {
+	//		g_cl.m_cmd->m_view_angles.y = velocity_angle + correct;
+	//		g_cl.m_cmd->m_side_move = -450.f;
+	//	}
+	//}
 }
 
 void Movement::DoPrespeed() {
@@ -532,12 +514,16 @@ void Movement::AutoPeek() {
 }
 
 void Movement::QuickStop() {
+	if (!(g_cl.m_local->m_fFlags() & FL_ONGROUND))
+		return;
+
 	// convert velocity to angular momentum.
 	ang_t angle;
 	math::VectorAngles(g_cl.m_local->m_vecVelocity(), angle);
 
 	// get our current speed of travel.
-	float speed = g_cl.m_local->m_vecVelocity().length();
+	vec3_t vel = g_cl.m_local->m_vecVelocity();
+	float speed = vel.length();
 
 	// fix direction by factoring in where we are looking.
 	angle.y = g_cl.m_view_angles.y - angle.y;
@@ -548,14 +534,41 @@ void Movement::QuickStop() {
 
 	vec3_t stop = direction * -speed;
 
-	if (g_cl.m_speed > 13.f) {
-		g_cl.m_cmd->m_forward_move = stop.x;
-		g_cl.m_cmd->m_side_move = stop.y;
-	}
-	else {
+	if (g_cl.m_speed < 0.1f)
+	{
 		g_cl.m_cmd->m_forward_move = 0.f;
 		g_cl.m_cmd->m_side_move = 0.f;
+		return;
 	}
+
+	static auto sv_accelerate = g_csgo.m_cvar->FindVar(HASH("sv_accelerate"));
+	float accel = sv_accelerate->GetFloat();
+	float max_speed = g_cl.m_local->GetActiveWeapon()->GetWpnData()->m_max_player_speed;
+
+	if (g_cl.m_local->m_bIsScoped()) {
+		max_speed = g_cl.m_local->GetActiveWeapon()->GetWpnData()->m_max_player_speed_alt;
+	}
+
+	max_speed = std::min< float >(max_speed, 250.f);
+
+	float surf_friction = 1.f;
+	float max_accelspeed = accel * g_csgo.m_globals->m_interval * max_speed * surf_friction;
+
+	float wishspeed{ };
+
+	if (speed - max_accelspeed <= -1.f) {
+		wishspeed = max_accelspeed / (speed / (accel * g_csgo.m_globals->m_interval));
+	}
+	else {
+		wishspeed = max_accelspeed;
+	}
+
+	vec3_t ndir = math::vector_angles(vel * -1.f);
+	ndir.y = g_cl.m_cmd->m_view_angles.y - ndir.y;
+	ndir = math::angle_vectors(ndir);
+
+	g_cl.m_cmd->m_forward_move = ndir.x * wishspeed * (0.25);
+	g_cl.m_cmd->m_side_move = ndir.y * wishspeed * (0.25);
 }
 
 void Movement::FakeWalk() {
@@ -613,3 +626,32 @@ void Movement::FakeWalk() {
 		g_cl.m_cmd->m_forward_move = g_cl.m_cmd->m_side_move = 0.f;
 	}
 }
+/*
+void Movement::tex_walk() {
+	vec3_t velocity{ g_cl.m_local->m_vecVelocity() };
+	int    ticks{ }, max{ 128 };
+
+	if (!g_input.GetKeyState(g_menu.main.movement.tex_walk.get()))
+		return;
+
+	if (!g_cl.m_local->GetGroundEntity())
+		return;
+
+
+
+	static int old_cmds = 0;
+
+	if (old_cmds != g_cl.m_cmd->m_command_number)
+		old_cmds = g_cl.m_cmd->m_command_number;
+
+	if (old_cmds)
+	{
+		if (*g_cl.m_packet) {
+			g_cl.m_cmd->m_tick = INT_MAX / 2; //people with bad prediction are crying their ass off rn
+
+		}
+	}
+
+
+
+}*/

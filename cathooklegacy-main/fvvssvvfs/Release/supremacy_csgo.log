@@ -1,8 +1,52 @@
-﻿  client.cpp
+﻿  aimbot.cpp
+  bonesetup.cpp
+  button.cpp
+  callbacks.cpp
+  chams.cpp
+  checkbox.cpp
+  client.cpp
+  clientdll.cpp
+  clientmode.cpp
+  clientstate.cpp
+  colorpicker.cpp
+  config.cpp
+  csgo.cpp
+  cvar.cpp
+  dropdown.cpp
+  edit.cpp
+  engine.cpp
+  entry.cpp
+  events.cpp
+  firebullets.cpp
+  form.cpp
+  gh.cpp
+  grenades.cpp
+  gui.cpp
+  hooks.cpp
+  hvh.cpp
+  keybind.cpp
+  knifebot.cpp
+  lagcomp.cpp
+  matchframework.cpp
+  materialsystem.cpp
+  math.cpp
+  modelrender.cpp
   movement.cpp
+  multidropdown.cpp
+  netchannel.cpp
+  netdata.cpp
+  panel.cpp
+  penetration.cpp
+  player.cpp
+  resolver.cpp
+  shots.cpp
+  surface.cpp
+  viewrender.cpp
+  visuals.cpp
+  wndproc.cpp
   Generating code
-  112 of 8101 functions ( 1.4%) were compiled, the rest were copied from previous compilation.
+  877 of 8126 functions (10.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    76 functions had inline decision re-evaluated but remain unchanged
+    146 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  supremacy_csgo.vcxproj -> C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\release\cathook.dll
+  supremacy_csgo.vcxproj -> C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\release\cathook.dll

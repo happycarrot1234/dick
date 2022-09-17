@@ -277,7 +277,7 @@ void Shots::OnImpact(IGameEvent* evt) {
 
 		// if we miss a shot on body update.
 		// we can chose to stop shooting at them.
-		if (mode == Resolver::Modes::RESOLVE_UNKNOWM) {
+		if (mode == Resolver::Modes::RESOLVE_BODY) {
 			g_notify.add(tfm::format(XOR("[Resolver info: LBY update | Angle Shot: %s]\n"), balls));
 		}
 

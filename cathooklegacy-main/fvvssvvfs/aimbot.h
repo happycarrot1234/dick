@@ -41,6 +41,7 @@ public:
 	Player* m_player;
 	float	  m_spawn;
 	records_t m_records;
+	C_AnimationLayer m_layers[13];
 
 	// aimbot data.
 	hitboxcan_t m_hitboxes;
