@@ -23,6 +23,7 @@ public:
 	Checkbox      knifebot;
 	Checkbox	  zeusbot;
 	Checkbox      debugaim;
+	Colorpicker debugaimcol;
 
 	MultiDropdown general_hitboxes;
 	MultiDropdown general_multipoint;
@@ -360,6 +361,9 @@ public:
 
 		debugaim.setup(XOR("aimbot hitchams"), XOR("debugaim"));
 		RegisterElement(&debugaim);
+
+		debugaimcol.setup(XOR("aimbot hitchams color"), XOR("debugaimcol"), colors::burgundy);
+		RegisterElement(&debugaimcol);
 
 		// col2.
 		zoom.setup(XOR("auto scope"), XOR("zoom"), { XOR("off"), XOR("always"), XOR("hitchance fail") });
