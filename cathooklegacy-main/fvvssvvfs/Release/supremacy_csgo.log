@@ -1,7 +1,8 @@
-﻿  movement.cpp
+﻿  client.cpp
+  movement.cpp
   Generating code
-  8057 of 8104 functions (99.4%) were compiled, the rest were copied from previous compilation.
-    1756 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+  112 of 8101 functions ( 1.4%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    76 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  supremacy_csgo.vcxproj -> C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\release\cathook.dll
+  supremacy_csgo.vcxproj -> C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\release\cathook.dll
