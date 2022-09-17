@@ -23,8 +23,8 @@ void render::init() {
 	hud = Font(XOR("Verdana"), 16, FW_NORMAL, FONTFLAG_ANTIALIAS);
 	cs = Font(XOR("Counter-Strike"), 28, FW_MEDIUM, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 	indicator = Font(XOR("Verdana"), 26, FW_BOLD, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
-	logevent = Font(XOR("Segoe ui"), 15, FW_DONTCARE, FONTFLAG_DROPSHADOW);
-	damage = Font(XOR("Tahoma"), 15, FW_DONTCARE, FONTFLAG_DROPSHADOW);
+	logevent = Font(XOR("Segoe UI"), 15, FW_DONTCARE, FONTFLAG_DROPSHADOW);
+	damage = Font(XOR("Verdana"), 15, FW_DONTCARE, FONTFLAG_DROPSHADOW);
 	grenade = Font(XOR("Undefeated"), 15, FW_DONTCARE, FONTFLAG_DROPSHADOW);
 }
 
