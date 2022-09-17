@@ -357,6 +357,21 @@ void Resolver::LastMoveLby(LagRecord* record, AimPlayer* data, Player* player)
 		float delta = record->m_anim_time - move->m_anim_time;
 
 		record->m_mode = Modes::RESOLVE_LASTMOVE;
+
+		switch (data->m_stand_index % 3){
+		{
+		case 0:
+			record->m_eye_angles.y = GetLBYRotatedYaw(player->m_flLowerBodyYawTarget(), at_target_yaw + 60.f);
+			break;
+		case 1:
+			record->m_eye_angles.y = at_target_yaw + 140.f;
+			break;
+		case 2:
+			record->m_eye_angles.y = at_target_yaw - 75.f;
+			break;
+		}
+	}
+
 		//data->m_last_move
 
 		const float at_target_yaw = math::CalcAngle(g_cl.m_local->m_vecOrigin(), player->m_vecOrigin()).y;
