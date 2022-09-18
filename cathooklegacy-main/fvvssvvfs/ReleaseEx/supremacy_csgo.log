@@ -1,0 +1,58 @@
+﻿  aimbot.cpp
+  bonesetup.cpp
+  button.cpp
+  callbacks.cpp
+  chams.cpp
+  checkbox.cpp
+  client.cpp
+  clientstate.cpp
+  colorpicker.cpp
+  config.cpp
+  edit.cpp
+  events.cpp
+  firebullets.cpp
+  gh.cpp
+  keybind.cpp
+  matchframework.cpp
+  materialsystem.cpp
+  shadowmgr.cpp
+  csgo.cpp
+  cvar.cpp
+  modelrender.cpp
+  dropdown.cpp
+  entry.cpp
+  form.cpp
+  grenades.cpp
+  gui.cpp
+  hooks.cpp
+  hvh.cpp
+  engine.cpp
+  knifebot.cpp
+  lagcomp.cpp
+  clientdll.cpp
+  shots.cpp
+  skins.cpp
+  surface.cpp
+  math.cpp
+  movement.cpp
+  multidropdown.cpp
+  netdata.cpp
+  clientmode.cpp
+  panel.cpp
+  penetration.cpp
+  player.cpp
+  pred.cpp
+  netchannel.cpp
+  render.cpp
+  viewrender.cpp
+  resolver.cpp
+  prediction.cpp
+  renderview.cpp
+  slider.cpp
+  visuals.cpp
+  wndproc.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 8156 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  supremacy_csgo.vcxproj -> C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\release\cathook.dll

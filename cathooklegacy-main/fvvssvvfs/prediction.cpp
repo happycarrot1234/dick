@@ -34,8 +34,25 @@ bool Hooks::InPrediction() {
 
 void Hooks::RunCommand(Entity* ent, CUserCmd* cmd, IMoveHelper* movehelper) {
 	// airstuck jitter / overpred fix.
-	if (cmd->m_tick >= std::numeric_limits< int >::max())
+	if (cmd->m_tick >= FLT_MAX) {
+		g_netdata.store();
+		cmd->m_predicted = true;
 		return;
+	}
+
+	if (!ent || ent->index() != g_csgo.m_engine->GetLocalPlayer())
+		return g_hooks.m_prediction.GetOldMethod< RunCommand_t >(CPrediction::RUNCOMMAND)(this, ent, cmd, movehelper);
+
+	bool shottick = cmd->m_buttons & IN_ATTACK;
+	int storedtick = cmd->m_tick;
+
+	if (g_cl.m_tick_to_shift > 0) // fix issues with prediction when shifting ticks
+		cmd->m_tick = game::TIME_TO_TICKS(g_csgo.m_globals->m_curtime) + g_cl.m_tick_to_shift;
+
+	if (cmd->m_tick >= (g_csgo.m_globals->m_tick_count + g_cl.m_rate + 8)) {  //Helping ur aimbot predict 
+		cmd->m_predicted = true;
+		return;
+	}
 
 	g_hooks.m_prediction.GetOldMethod< RunCommand_t >(CPrediction::RUNCOMMAND)(this, ent, cmd, movehelper);
 
