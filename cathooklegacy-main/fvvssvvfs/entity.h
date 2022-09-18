@@ -89,6 +89,7 @@ enum effects_t : int {
 	EF_BRIGHTLIGHT = 0x002,	// DLIGHT centered at entity origin
 	EF_DIMLIGHT = 0x004,	// player flashlight
 	EF_NOINTERP = 0x008,	// don't interpolate the next frame
+	EFL_SETTING_UP_BONES = (1 << 3),	// Set while a model is setting up its bones.
 	EF_NOSHADOW = 0x010,	// Don't cast no shadow
 	EF_NODRAW = 0x020,	// don't draw entity
 	EF_NORECEIVESHADOW = 0x040,	// Don't receive no shadow

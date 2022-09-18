@@ -9,10 +9,13 @@ public:
 		RESOLVE_WALK,
 		RESOLVE_STAND,
 		RESOLVE_STAND1,
+		RESOLVE_FREESTAND,
 		RESOLVE_STAND2,
 		RESOLVE_AIR,
 		RESOLVE_BODY,
+		RESOLVE_LAST_LBY,
 		RESOLVE_STOPPED_MOVING,
+		RESOLVE_SPIN,
 		RESOLVE_OVERRIDE,
 		RESOLVE_LASTMOVE,
 		RESOLVE_UNKNOWM,
@@ -36,13 +39,21 @@ public:
 	void SetMode(LagRecord* record);
 
 	void ResolveAngles(Player* player, LagRecord* record);
+	bool ShouldUseFreestand(LagRecord* record);
+	void Freestand(Player* player, AimPlayer* data, LagRecord* record);
+	bool Spin_Detection(AimPlayer* data);
+	void ResolveStand(Player* player, AimPlayer* data, LagRecord* record);
 	void ResolveWalk(AimPlayer* data, LagRecord* record);
+	void ResolveAir(Player* player, AimPlayer* data, LagRecord* record);
+	//void ResolveWalk(AimPlayer* data, LagRecord* record, Player* player);
+	//void ResolveWalk(AimPlayer* data, LagRecord* record);
 	void ResolveYawBruteforce(LagRecord* record, Player* player, AimPlayer* data);
-	float GetDirectionAngle(int index, Player* player);
+	float GetDirectionAngle(int index, Player* player, LagRecord* record);
+//	float GetDirectionAngle(int index, Player* player);
 	void LastMoveLby(LagRecord* record, AimPlayer* data, Player* player);
-	void ResolveStand(AimPlayer* data, LagRecord* record);
+	//void ResolveStand(AimPlayer* data, LagRecord* record);
 	void StandNS(AimPlayer* data, LagRecord* record);
-	void ResolveAir(AimPlayer* data, LagRecord* record, Player* player);
+	//void ResolveAir(AimPlayer* data, LagRecord* record, Player* player);
 
 	void AirNS(AimPlayer* data, LagRecord* record);
 	void ResolvePoses(Player* player, LagRecord* record);
@@ -59,7 +70,11 @@ public:
 	float get_yaw_while_breaking(Player* entity);
 
 	bool breaking_lby(AimPlayer* entity, float yaw);
-
+	bool bFacingright;
+	bool bFacingleft; // genius code btw.
+	float spindelta;
+	float spinbody;
+	int spin_step;
 	//bool breaking_lby(Player* entity, float yaw);
 
 	//bool breaking_lby(Player* entity);

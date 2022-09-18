@@ -84,6 +84,7 @@ public:
 	// resolver stuff.
 	size_t m_mode;
 	bool   m_fake_walk;
+	bool   m_fake_flick;
 	bool   m_shot;
 	float  m_away;
 	float  m_anim_time;

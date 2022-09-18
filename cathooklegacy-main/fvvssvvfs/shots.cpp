@@ -281,6 +281,10 @@ void Shots::OnImpact(IGameEvent* evt) {
 			g_notify.add(tfm::format(XOR("[Resolver info: LBY update | Angle Shot: %s]\n"), balls));
 		}
 
+		else if (mode == Resolver::Modes::RESOLVE_LAST_LBY) {
+			g_notify.add(tfm::format(XOR("[Resolver info: Last LBY | Angle Shot: %s]\n"), balls));
+		}
+
 		else if (mode == Resolver::Modes::RESOLVE_LASTMOVE) {
 			g_notify.add(tfm::format(XOR("[Resolver info: Last move | Angle Shot: %s]\n"), balls));
 		}
@@ -289,9 +293,9 @@ void Shots::OnImpact(IGameEvent* evt) {
 			g_notify.add(tfm::format(XOR("[Resolver info: Stoped Moving | Angle Shot: %s]\n"), balls));
 		}
 
-		//else if (mode == Resolver::Modes::RESOLVE_FREESTAND) {
-		//	g_notify.add(tfm::format(XOR("[Resolver info: Freestanding | Angle Shot: %s]\n"), balls));
-	//	}
+		else if (mode == Resolver::Modes::RESOLVE_FREESTAND) {
+			g_notify.add(tfm::format(XOR("[Resolver info: Freestanding | Angle Shot: %s]\n"), balls));
+		}
 
 		else if (mode == Resolver::Modes::RESOLVE_BRUTEFORCE) {
 			g_notify.add(tfm::format(XOR("[Resolver info: Bruteforce | Angle Shot: %s]\n"), balls));

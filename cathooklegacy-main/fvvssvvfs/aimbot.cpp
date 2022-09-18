@@ -115,6 +115,7 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 
 	// reset fakewalk state.
 	record->m_fake_walk = false;
+	record->m_fake_flick = false;
 	record->m_mode = Resolver::Modes::RESOLVE_NONE;
 
 	// fix velocity.

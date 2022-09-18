@@ -56,9 +56,19 @@ public:
 	int m_stand_index;
 	int m_stand_index2;
 	int m_stand_index3;
-	int m_last_move;
+	//int m_stand_index;
+	int m_brute_index;
+	int m_air_index;
+	int m_moving_index;
 	int m_unknown_move;
 	int m_body_index;
+	int m_anti_index;
+	int m_freestand_index;
+	int m_lby_delta_index;
+	int m_backwards_index;
+	int m_last_move;
+	int m_missed_pitch;
+	int m_spin_index;
 
 
 	// data about the LBY proxy.

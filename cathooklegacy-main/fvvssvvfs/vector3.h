@@ -67,6 +67,11 @@ public:
 		};
 	}
 
+	__forceinline float dot(const vec3_t& v) const {
+		return (x * v.x + y * v.y + z * v.z);
+	}
+
+
 	__forceinline vec3_t operator-( const vec3_t& v ) const {
 		return {
 			x - v.x,
@@ -203,9 +208,9 @@ public:
 		return std::sqrt( length_2d_sqr( ) );
 	}
 
-	__forceinline float dot( const vec3_t& v ) const {
-		return ( x * v.x + y * v.y + z * v.z );
-	}
+	//__forceinline float dot( const vec3_t& v ) const {
+	//	return ( x * v.x + y * v.y + z * v.z );
+	//}
 
 	__forceinline float dot( float* v ) const {
 		return ( x * v[ 0 ] + y * v[ 1 ] + z * v[ 2 ] );
