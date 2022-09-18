@@ -593,6 +593,9 @@ public:
 	Dropdown base_angle_stand;
 	Dropdown body_fake_stand;
 	Slider	 body_fake_stand_custom;
+	Checkbox distortion;
+	Slider   distortion_amount;
+	Slider   distortion_speed;
 
 	Dropdown pitch_walk;
 	Dropdown yaw_walk;
@@ -727,6 +730,24 @@ public:
 		//body_fake_stand_custom.AddShowCallback(callbacks::HasStandYaw);
 		body_fake_stand_custom.AddShowCallback(callbacks::IsCustomLby);
 		RegisterElement(&body_fake_stand_custom);
+
+		distortion.setup(XOR("distortion"), XOR("distortion"));
+		distortion.AddShowCallback(callbacks::IsAntiAimModeStand);
+		distortion.AddShowCallback(callbacks::HasStandYaw);
+		RegisterElement(&distortion);
+
+		distortion_amount.setup(XOR("distortion amount"), XOR("distortion_amount"), 0, 360, true, 0, 0.f, 1.f, XOR(L"°"));
+		distortion_amount.AddShowCallback(callbacks::IsAntiAimModeStand);
+		distortion_amount.AddShowCallback(callbacks::HasStandYaw);
+		distortion_amount.AddShowCallback(callbacks::DistortionEnabled);
+		RegisterElement(&distortion_amount);
+
+		distortion_speed.setup(XOR("distortion speed"), XOR("distortion_speed"), 0, 100, true, 0, 0.f, 1.f, XOR(L"%"));
+		distortion_speed.AddShowCallback(callbacks::IsAntiAimModeStand);
+		distortion_speed.AddShowCallback(callbacks::HasStandYaw);
+		distortion_speed.AddShowCallback(callbacks::DistortionEnabled);
+		RegisterElement(&distortion_speed);
+
 
 		/*dir_time_stand.setup("", XOR("dir_time_stnd"), 0.f, 10.f, false, 0, 0.f, 1.f, XOR(L"s"));
 		dir_time_stand.AddShowCallback(callbacks::IsAntiAimModeStand);

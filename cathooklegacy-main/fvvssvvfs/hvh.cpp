@@ -448,6 +448,24 @@ bool HVH::DoEdgeAntiAim(Player* player, ang_t& out) {
 	return false;
 }
 
+void HVH::DistortionAntiAim(CUserCmd* cmd)
+{
+	if (!g_menu.main.antiaim.distortion.get())
+		return;
+
+	//if (g_menu.main.antiaim.manual_override.get() && manualSide != 3)
+		//return;
+
+	if (!(g_cl.m_flags & FL_ONGROUND))
+		return;
+
+	if (g_cl.m_speed > 0.1f)
+		return;
+
+	float sine = ((sin(g_csgo.m_globals->m_curtime * (g_menu.main.antiaim.distortion_speed.get() / 5.f)) + 1) / 2) * g_menu.main.antiaim.distortion_amount.get();
+	cmd->m_view_angles.y += sine - (g_menu.main.antiaim.distortion_amount.get() / 2.f); //+(float)(rand() % ((int)g_menu.main.antiaim.distortion_random.get() + 1) / 4);
+}
+
 void HVH::DoRealAntiAim() {
 	// if we have a yaw antaim.
 	if (m_yaw > 0) {
@@ -545,6 +563,8 @@ void HVH::DoRealAntiAim() {
 
 		// run normal aa code.
 		else {
+			DistortionAntiAim(g_cl.m_cmd);
+
 			switch (m_yaw) {
 
 				// direction.
@@ -554,12 +574,27 @@ void HVH::DoRealAntiAim() {
 
 				// jitter.
 			case 2: {
-
 				// get the range from the menu.
-				float range = m_jitter_range / 2.f;
+				float range = m_jitter_range;
 
 				// set angle.
-				g_cl.m_cmd->m_view_angles.y += g_csgo.RandomFloat(-range, range);
+				switch (g_csgo.m_globals->m_tick_count % 4) {
+				case 0:
+					g_cl.m_cmd->m_view_angles.y += range;
+					break;
+
+				case 1:
+					g_cl.m_cmd->m_view_angles.y += range;
+					break;
+
+				case 2:
+					g_cl.m_cmd->m_view_angles.y -= range;
+					break;
+
+				case 3:
+					g_cl.m_cmd->m_view_angles.y -= range;
+					break;
+				}
 				break;
 			}
 

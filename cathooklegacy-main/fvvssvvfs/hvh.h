@@ -58,6 +58,7 @@ public:
 	void AutoDirection();
 	void GetAntiAimDirection();
 	bool DoEdgeAntiAim(Player* player, ang_t& out);
+	void DistortionAntiAim(CUserCmd* cmd);
 	void DoRealAntiAim();
 	void DoFakeAntiAim();
 	void AntiAim();

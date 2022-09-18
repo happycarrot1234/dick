@@ -339,6 +339,11 @@ bool callbacks::HasStandYaw() {
 	return g_menu.main.antiaim.yaw_stand.get() > 0;
 }
 
+bool callbacks::DistortionEnabled() {
+	return g_menu.main.antiaim.distortion.get();
+}
+
+
 bool callbacks::IsStandYawJitter() {
 	return g_menu.main.antiaim.yaw_stand.get() == 2;
 }
