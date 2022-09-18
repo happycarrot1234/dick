@@ -233,10 +233,9 @@ void Client::Skybox()
 	*/
 	//g_menu.main.visuals.FogColor.get().r(), g_menu.main.visuals.FogColor.get().g(), g_menu.main.visuals.FogColor.get().b()
 
-	float destiny = g_menu.main.visuals.Fogdensity.get() / 100.f;
+/*	float destiny = g_menu.main.visuals.Fogdensity.get() / 100.f;
 
 	static const auto fog_enable = g_csgo.m_cvar->FindVar(HASH("fog_enable"));
-	fog_enable->SetValue(1); //Âêëþ÷àåò òóìàí íà êàðòå åñëè îí âûêëþ÷åí ïî äåôîëòó
 	static const auto fog_override = g_csgo.m_cvar->FindVar(HASH("fog_override"));
 	fog_override->SetValue(g_menu.main.visuals.FogOverride.get()); // Ðàçðåøàåò êàñòîìèçàöèþ òóìàíà
 	static const auto fog_color = g_csgo.m_cvar->FindVar(HASH("fog_color"));
@@ -246,7 +245,7 @@ void Client::Skybox()
 	static const auto fog_end = g_csgo.m_cvar->FindVar(HASH("fog_end"));
 	fog_end->SetValue(g_menu.main.visuals.FogEnd.get()); // Äèñòàíöèÿ ñ êîòîðîé òóìàí ïðîïàäàåò
 	static const auto fog_destiny = g_csgo.m_cvar->FindVar(HASH("fog_maxdensity"));
-	fog_destiny->SetValue(destiny); //Ìàêñèìàëüíàÿ íàñûùåííîñòü òóìàíà(0-1)
+	fog_destiny->SetValue(destiny); //Ìàêñèìàëüíàÿ íàñûùåííîñòü òóìàíà(0-1)*/
 }
 
 void Client::KillFeed() {

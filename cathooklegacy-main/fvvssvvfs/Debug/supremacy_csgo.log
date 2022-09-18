@@ -6,41 +6,61 @@
   chams.cpp
   checkbox.cpp
   client.cpp
+  clientdll.cpp
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file client.cpp)
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(1565,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\chams.cpp(287,14): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\chams.cpp(324,13): warning C4101: 'record': unreferenced local variable
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(2611,6): warning C4101: 'hitbox': unreferenced local variable
+  clientmode.cpp
   clientstate.cpp
   colorpicker.cpp
   config.cpp
-  edit.cpp
-  events.cpp
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(1564,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(2610,6): warning C4101: 'hitbox': unreferenced local variable
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\chams.cpp(287,14): warning C4834: discarding return value of function with 'nodiscard' attribute
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\chams.cpp(324,13): warning C4101: 'record': unreferenced local variable
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file client.cpp)
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\client.cpp(20,27): warning C4566: character represented by universal-character-name '\u2800' cannot be represented in the current code page (1252)
-  firebullets.cpp
-  gh.cpp
-  keybind.cpp
-  matchframework.cpp
-  materialsystem.cpp
-  shadowmgr.cpp
   csgo.cpp
   cvar.cpp
-  modelrender.cpp
   dropdown.cpp
+  edit.cpp
+  engine.cpp
   entry.cpp
+  events.cpp
+  firebullets.cpp
   form.cpp
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file gh.cpp)
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.cpp(92,33): warning C4305: '=': truncation from 'double' to 'float'
+  gh.cpp
   grenades.cpp
   gui.cpp
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file gh.cpp)
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.cpp(92,33): warning C4305: '=': truncation from 'double' to 'float'
   hooks.cpp
   hvh.cpp
-  engine.cpp
-C:\Users\sdada\OneDrive\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.cpp(140): warning C4715: 'index_to_grenade_name_icon': not all control paths return a value
+  keybind.cpp
   knifebot.cpp
   lagcomp.cpp
-  clientdll.cpp
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.cpp(140): warning C4715: 'index_to_grenade_name_icon': not all control paths return a value
+  matchframework.cpp
+  materialsystem.cpp
+  math.cpp
+  modelrender.cpp
+  movement.cpp
+  multidropdown.cpp
+  netchannel.cpp
+  netdata.cpp
+  panel.cpp
+  penetration.cpp
+  player.cpp
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\modelrender.cpp(5,19): warning C4101: 'OriginalFn': unreferenced local variable
+  pred.cpp
+  prediction.cpp
+  render.cpp
+  renderview.cpp
+  resolver.cpp
+  shadowmgr.cpp
   shots.cpp
   skins.cpp
+  slider.cpp
   surface.cpp
-  math.cpp
+  viewrender.cpp
+  visuals.cpp
+  wndproc.cpp
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file visuals.cpp)
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\visuals.cpp(1331,60): warning C4805: '==': unsafe mix of type 'int' and type 'bool' in operation
+  supremacy_csgo.vcxproj -> C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\cathook.dll

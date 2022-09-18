@@ -288,7 +288,7 @@ void Visuals::Hitmarker() {
 
 
 void Visuals::NoSmoke() {
-	if (!g_menu.main.visuals.nosmoke.get())
+	if (!g_menu.main.visuals.removals.get(3))
 		return;
 	//colado https://www.unknowncheats.me/forum/counterstrike-global-offensive/262635-epic-wireframe-smoke.html
 	std::vector<const char*> vistasmoke_mats =
@@ -311,7 +311,7 @@ void Visuals::think() {
 	if (!g_cl.m_local)
 		return;
 
-	if (g_menu.main.visuals.noscope.get()
+	if (g_menu.main.visuals.removals.get(1)
 		&& g_cl.m_local->alive()
 		&& g_cl.m_local->GetActiveWeapon()
 		&& g_cl.m_local->GetActiveWeapon()->GetWpnData()->m_weapon_type == CSWeaponType::WEAPONTYPE_SNIPER_RIFLE

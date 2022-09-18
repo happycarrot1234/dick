@@ -1111,6 +1111,7 @@ public:
 	MultiDropdown planted_c4;
 	Checkbox      disableteam;
 	Dropdown	  world;
+	Checkbox      customshadows;
 	Slider        night_darkness;
 	//	  world_color;
 	Checkbox      transparent_props;
@@ -1118,19 +1119,15 @@ public:
 	Checkbox      enemy_radar;
 	Dropdown      chamstype;
 
-	Checkbox	FogOverride; // butt
+	/*Checkbox	FogOverride; // butt
 	Colorpicker	FogColor; // color
 	Slider		FogStart; // slider
 	Slider		FogEnd; // slider
-	Slider		Fogdensity; // slider
+	Slider		Fogdensity; // slider*/
 	//Colorpicker      glowcolor;
 
 	// col2.
-	Checkbox      novisrecoil;
-	Checkbox      nosmoke;
-	Checkbox      nofog;
-	Checkbox      noflash;
-	Checkbox      noscope;
+	MultiDropdown removals;
 	Checkbox      fov;
 	Slider        fov_amt;
 	Checkbox      fov_scoped;
@@ -1201,6 +1198,9 @@ public:
 		world.SetCallback(Visuals::ModulateWorld);
 		RegisterElement(&world);
 
+		customshadows.setup(XOR("sunset mode"), XOR("customshadows"));
+		RegisterElement(&customshadows);
+
 		night_darkness.setup("", XOR("night_darkness"), 0.f, 100.f, false, 0, 10.f, 1.f, XOR(L"%"));
 		night_darkness.SetCallback(Visuals::ModulateWorld);
 		night_darkness.AddShowCallback(callbacks::IsNightMode);
@@ -1225,7 +1225,7 @@ public:
 		RegisterElement(&chamstype);
 
 
-		FogOverride.setup(XOR("Override fog"), XOR("FogOverride"));
+/*		FogOverride.setup(XOR("Override fog"), XOR("FogOverride"));
 		RegisterElement(&FogOverride);
 
 		FogColor.setup("color", XOR("FogColor"), colors::burgundy);
@@ -1238,26 +1238,14 @@ public:
 		RegisterElement(&FogEnd);
 
 		Fogdensity.setup(XOR("Density"), XOR("Fog density"), 0.f, 100.f, false, 0, 100.f, 1.f, XOR(L"%"));
-		RegisterElement(&Fogdensity);
+		RegisterElement(&Fogdensity);*/
 
 		//glowcolor.setup(XOR("glow chams color"), XOR("glowcolor"), colors::light_blue);
 		//RegisterElement(&glowcolor, 1);
 
 		// col2.
-		novisrecoil.setup(XOR("remove visual recoil"), XOR("novisrecoil"));
-		RegisterElement(&novisrecoil, 1);
-
-		nosmoke.setup(XOR("remove smoke grenades"), XOR("nosmoke"));
-		RegisterElement(&nosmoke, 1);
-
-		nofog.setup(XOR("remove fog"), XOR("nofog"));
-		RegisterElement(&nofog, 1);
-
-		noflash.setup(XOR("remove flashbangs"), XOR("noflash"));
-		RegisterElement(&noflash, 1);
-
-		noscope.setup(XOR("remove scope"), XOR("noscope"));
-		RegisterElement(&noscope, 1);
+		removals.setup(XOR("removals"), XOR("removals"), { XOR("none"), XOR("remove scope"), XOR("remove visual recoil"), XOR("remove smoke grendes"), XOR("remove fog effects"), XOR("remove flash effect"), XOR("remove sleeves"), XOR("remove 3d sky"), XOR("remove post processing")});
+		RegisterElement(&removals, 1);
 
 		fov.setup(XOR("override fov"), XOR("fov"));
 		RegisterElement(&fov, 1);
