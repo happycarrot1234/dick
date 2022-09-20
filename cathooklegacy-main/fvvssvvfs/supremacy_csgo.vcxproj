@@ -350,6 +350,13 @@
     <ClCompile Include="visuals.cpp" />
     <ClCompile Include="wndproc.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\Desktop\paster folder\cobalt\minhook.lib" />
+    <Library Include="minhook\mihook-mtd.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitignore" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

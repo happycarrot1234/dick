@@ -17,7 +17,7 @@ ulong_t __stdcall Client::init(void* arg) {
 
 	g_csgo.m_engine->ExecuteClientCmd((XOR("clear")));
 	g_csgo.m_engine->ExecuteClientCmd((XOR("fps_max 0")));
-	g_notify.add(tfm::format(XOR("---------------Welcome to Cathook---------------\n"), g_cl.m_user));
+	g_notify.add(tfm::format(XOR("+++Cathook Initialized+++\n"), g_cl.m_user));
 	return 1;
 }
 
@@ -26,7 +26,7 @@ void Client::DrawHUD() {
 
 	if (!g_menu.main.misc.watermark.get())
 		return;
-	Color menu = g_menu.main.config.menu_color.get();
+	Color menu = g_menu.main.misc.menu_color.get();
 
 	time_t tt = std::time(nullptr);
 	std::ostringstream time;
@@ -280,7 +280,7 @@ void Client::OnPaint() {
 	// render stuff.
 	g_visuals.think();
 	g_grenades.paint();
-	g_notify.think(g_menu.main.config.menu_color.get());
+	g_notify.think(g_menu.main.misc.menu_color.get());
 
 	for (auto k = 0; k < g_csgo.m_entlist->GetHighestEntityIndex(); k++)
 	{
@@ -347,6 +347,24 @@ void Client::StartMove(CUserCmd* cmd) {
 	m_local = g_csgo.m_entlist->GetClientEntity< Player* >(g_csgo.m_engine->GetLocalPlayer());
 	if (!m_local)
 		return;
+
+	g_csgo.m_net = g_csgo.m_engine->GetNetChannelInfo();
+
+	if (!g_csgo.m_net)
+		return;
+
+	if (m_processing && m_tick_to_recharge > 0 && !m_charged && can_recharge) {
+		m_tick_to_recharge--;
+		m_visual_shift_ticks++;
+		cmd->m_tick = INT_MAX;
+		*m_packet = true;
+	}
+
+	if (can_recharge && m_tick_to_recharge == 0)
+	{
+		m_charged = true;
+		can_recharge = false;
+	}
 
 	// store max choke
 	// TODO; 11 -> m_bIsValveDS
@@ -501,7 +519,7 @@ void Client::EndMove(CUserCmd* cmd) {
 	UpdateInformation();
 
 	// if matchmaking mode, anti untrust clamp.
-	if (g_menu.main.config.mode.get() == 0)
+	if (g_menu.main.misc.mode.get() == 0)
 		m_cmd->m_view_angles.SanitizeAngle();
 
 	// fix our movement.
@@ -543,6 +561,22 @@ void Client::OnTick(CUserCmd* cmd) {
 	if (g_menu.main.misc.ranks.get() && cmd->m_buttons & IN_SCORE) {
 		static CCSUsrMsg_ServerRankRevealAll msg{ };
 		g_csgo.ServerRankRevealAll(&msg);
+	}
+
+	if (isShifting) {
+		// Task for the reader: Maybe we want to do a few things during our teleport (i.e. bhop, autostrafe, etc.)
+		//if (!g_menu.main.aimbot.slow_teleport.get()) {
+		//	g_cl.m_cmd->m_side_move = 0;
+		//	g_cl.m_cmd->m_forward_move = 0;
+		//}
+		*m_packet = ticksToShift == 1; // Only send on the last shifted
+		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2); // Prevent shooting mid-shift, will also give autofire for pistols when you DT
+		if (ignoreallcmds) {
+			cmd->m_tick = INT_MAX;
+		}
+		else
+			g_cl.doubletapCharge--;
+		return;
 	}
 
 	// store some data and update prediction.
@@ -773,7 +807,7 @@ void Client::UpdateRevolverCock() {
 	else {
 		// we still have ticks to query.
 		// apply inattack.
-		if (g_menu.main.config.mode.get() == 0 && m_revolver_query > m_revolver_cock)
+		if (g_menu.main.misc.mode.get() == 0 && m_revolver_query > m_revolver_cock)
 			m_cmd->m_buttons |= IN_ATTACK;
 
 		// count cock ticks.

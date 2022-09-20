@@ -637,6 +637,9 @@ public:
 	Checkbox	  draw_angles_chams;
 	Colorpicker   color_draw_angles_chams;
 	Slider        draw_angles_chams_blend;
+	Checkbox	  fake_latency_always;
+	Keybind       fake_latency;
+	Slider		  fake_latency_amt;
 	Keybind		  left;
 	Keybind		  right;
 	Keybind		  backward;
@@ -909,6 +912,16 @@ public:
 
 		draw_angles_chams_blend.setup("", XOR("draw_angles_chams_blend"), 10.f, 100.f, false, 0, 100.f, 1.f, XOR(L"%"));
 		RegisterElement(&draw_angles_chams_blend, 1);
+
+		fake_latency_always.setup(XOR("fake latency always on"), XOR("fake_latency_always"));
+		RegisterElement(&fake_latency_always, 1);
+
+		fake_latency.setup(XOR("fake latency"), XOR("fake_latency"));
+		fake_latency.SetToggleCallback(callbacks::ToggleFakeLatency);
+		RegisterElement(&fake_latency, 1);
+
+		fake_latency_amt.setup("", XOR("fake_latency_amt"), 50.f, 1000.f, false, 0, 200.f, 50.f, XOR(L"ms"));
+		RegisterElement(&fake_latency_amt, 1);
 
 		left.setup(XOR("left"), XOR("left"));
 		left.SetToggleCallback(callbacks::ToggleLeft);
@@ -1283,7 +1296,7 @@ public:
 		pen_damage.setup(XOR("penetration crosshair damage"), XOR("pen_damage"));
 		RegisterElement(&pen_damage, 1);
 
-		indicators.setup(XOR("indicators"), XOR("indicators"), { XOR("lby"), XOR("lag compensation"), XOR("fake latency") });
+		indicators.setup(XOR("indicators"), XOR("indicators"), { XOR("lby"), XOR("break LC"), XOR("ping spike"), XOR("min damage override"), XOR("force body aim")});
 		RegisterElement(&indicators, 1);
 
 		tracers.setup(XOR("grenade simulation"), XOR("tracers"));
@@ -2481,16 +2494,27 @@ public:
 class MiscTab : public Tab {
 public:
 	// col1.
+	Keybind       last_tick_defuse;
+	Colorpicker menu_color;
+	Slider offscreen_mode;
+	Slider offscreen_mode1;
+
+	Dropdown mode;
+	Dropdown config;
+	Keybind  key1;
+	Keybind  key2;
+	Keybind  key3;
+	Keybind  key4;
+	Keybind  key5;
+	Keybind  key6;
+	Button   save;
+	Button   load;
+
+	// col2.
 	MultiDropdown buy1;
 	MultiDropdown buy2;
 	MultiDropdown buy3;
 	MultiDropdown notifications;
-	Keybind       last_tick_defuse;
-	Checkbox	  fake_latency_always;
-	Keybind       fake_latency;
-	Slider		  fake_latency_amt;
-
-	// col2.
 	Checkbox skyboxchange;
 	Dropdown skybox;
 	Checkbox autoaccept;
@@ -2510,6 +2534,76 @@ public:
 	void init() {
 		SetTitle(XOR("misc"));
 
+//		last_tick_defuse.setup(XOR("last tick defuse"), XOR("last_tick_defuse"));
+//		RegisterElement(&last_tick_defuse);
+
+		menu_color.setup(XOR("menu color"), XOR("menu_color"), colors::burgundy, &g_gui.m_color);
+		RegisterElement(&menu_color);
+
+		offscreen_mode.setup(XOR("offscreen size"), XOR("offscreen_mode"), 20.f, 200.f, true, 0, 100.f, 1.f, XOR(L""));
+		RegisterElement(&offscreen_mode);
+
+		offscreen_mode1.setup(XOR("offscreen position"), XOR("offscreen_mode1"), 20.f, 200.f, true, 0, 200.f, 1.f, XOR(L""));
+		RegisterElement(&offscreen_mode1);
+
+		mode.setup(XOR("safety mode"), XOR("mode"), { XOR("matchmaking"), XOR("no-spread") });
+		RegisterElement(&mode);
+
+		config.setup(XOR("configuration"), XOR("cfg"), { XOR("1"), XOR("2"), XOR("3"), XOR("4"), XOR("5"), XOR("6") });
+		config.RemoveFlags(ElementFlags::SAVE);
+		RegisterElement(&config);
+
+		key1.setup(XOR("configuration key 1"), XOR("cfg_key1"));
+		key1.RemoveFlags(ElementFlags::SAVE);
+		key1.SetCallback(callbacks::SaveHotkeys);
+		key1.AddShowCallback(callbacks::IsConfig1);
+		key1.SetToggleCallback(callbacks::ConfigLoad1);
+		RegisterElement(&key1);
+
+		key2.setup(XOR("configuration key 2"), XOR("cfg_key2"));
+		key2.RemoveFlags(ElementFlags::SAVE);
+		key2.SetCallback(callbacks::SaveHotkeys);
+		key2.AddShowCallback(callbacks::IsConfig2);
+		key2.SetToggleCallback(callbacks::ConfigLoad2);
+		RegisterElement(&key2);
+
+		key3.setup(XOR("configuration key 3"), XOR("cfg_key3"));
+		key3.RemoveFlags(ElementFlags::SAVE);
+		key3.SetCallback(callbacks::SaveHotkeys);
+		key3.AddShowCallback(callbacks::IsConfig3);
+		key3.SetToggleCallback(callbacks::ConfigLoad3);
+		RegisterElement(&key3);
+
+		key4.setup(XOR("configuration key 4"), XOR("cfg_key4"));
+		key4.RemoveFlags(ElementFlags::SAVE);
+		key4.SetCallback(callbacks::SaveHotkeys);
+		key4.AddShowCallback(callbacks::IsConfig4);
+		key4.SetToggleCallback(callbacks::ConfigLoad4);
+		RegisterElement(&key4);
+
+		key5.setup(XOR("configuration key 5"), XOR("cfg_key5"));
+		key5.RemoveFlags(ElementFlags::SAVE);
+		key5.SetCallback(callbacks::SaveHotkeys);
+		key5.AddShowCallback(callbacks::IsConfig5);
+		key5.SetToggleCallback(callbacks::ConfigLoad5);
+		RegisterElement(&key5);
+
+		key6.setup(XOR("configuration key 6"), XOR("cfg_key6"));
+		key6.RemoveFlags(ElementFlags::SAVE);
+		key6.SetCallback(callbacks::SaveHotkeys);
+		key6.AddShowCallback(callbacks::IsConfig6);
+		key6.SetToggleCallback(callbacks::ConfigLoad6);
+		RegisterElement(&key6);
+
+		save.setup(XOR("save"));
+		save.SetCallback(callbacks::ConfigSave);
+		RegisterElement(&save);
+
+		load.setup(XOR("load"));
+		load.SetCallback(callbacks::ConfigLoad);
+		RegisterElement(&load);
+
+		// col2.
 		buy1.setup(XOR("auto buy items"), XOR("auto_buy1"),
 			{
 				XOR("ssg08"),
@@ -2517,7 +2611,7 @@ public:
 				XOR("scar20"),
 				XOR("g3sg1"),
 			});
-		RegisterElement(&buy1);
+		RegisterElement(&buy1, 1);
 
 		buy2.setup("", XOR("auto_buy2"),
 			{
@@ -2530,7 +2624,7 @@ public:
 				XOR("fn57"),
 				XOR("deagle"),
 			}, false);
-		RegisterElement(&buy2);
+		RegisterElement(&buy2, 1);
 
 		buy3.setup("", XOR("auto_buy3"),
 			{
@@ -2544,25 +2638,11 @@ public:
 				XOR("hegrenade"),
 				XOR("smokegrenade"),
 			}, false);
-		RegisterElement(&buy3);
+		RegisterElement(&buy3, 1);
 
 		notifications.setup(XOR("notifications"), XOR("notifications"), { XOR("matchmaking"), XOR("damage"), XOR("harmed"), XOR("purchases"), XOR("bomb"), XOR("defuse") });
-		RegisterElement(&notifications);
+		RegisterElement(&notifications, 1);
 
-		last_tick_defuse.setup(XOR("last tick defuse"), XOR("last_tick_defuse"));
-		RegisterElement(&last_tick_defuse);
-
-		fake_latency_always.setup(XOR("fake latency always on"), XOR("fake_latency_always"));
-		RegisterElement(&fake_latency_always);
-
-		fake_latency.setup(XOR("fake latency"), XOR("fake_latency"));
-		fake_latency.SetToggleCallback(callbacks::ToggleFakeLatency);
-		RegisterElement(&fake_latency);
-
-		fake_latency_amt.setup("", XOR("fake_latency_amt"), 50.f, 1000.f, false, 0, 200.f, 50.f, XOR(L"ms"));
-		RegisterElement(&fake_latency_amt);
-
-		// col2.
 		skyboxchange.setup(XOR("skybox change"), XOR("skyboxchange"));
 		RegisterElement(&skyboxchange, 1);
 
@@ -2612,96 +2692,7 @@ public:
 		ForceUpdate.setup(XOR("force update"));
 		ForceUpdate.SetCallback(callbacks::ForceFullUpdate);
 		RegisterElement(&ForceUpdate, 1);
-	}
-};
 
-class ConfigTab : public Tab {
-public:
-	Colorpicker menu_color;
-	Slider offscreen_mode;
-	Slider offscreen_mode1;
-
-	Dropdown mode;
-	Dropdown config;
-	Keybind  key1;
-	Keybind  key2;
-	Keybind  key3;
-	Keybind  key4;
-	Keybind  key5;
-	Keybind  key6;
-	Button   save;
-	Button   load;
-
-public:
-
-	void init() {
-		SetTitle(XOR("config"));
-
-		menu_color.setup(XOR("menu color"), XOR("menu_color"), colors::burgundy, &g_gui.m_color);
-		RegisterElement(&menu_color);
-
-		offscreen_mode.setup(XOR("offscreen size"), XOR("offscreen_mode"), 20.f, 200.f, true, 0, 100.f, 1.f, XOR(L""));
-		RegisterElement(&offscreen_mode);
-
-		offscreen_mode1.setup(XOR("offscreen position"), XOR("offscreen_mode1"), 20.f, 200.f, true, 0, 200.f, 1.f, XOR(L""));
-		RegisterElement(&offscreen_mode1);
-
-		mode.setup(XOR("safety mode"), XOR("mode"), { XOR("matchmaking"), XOR("no-spread") });
-		RegisterElement(&mode, 1);
-
-		config.setup(XOR("configuration"), XOR("cfg"), { XOR("1"), XOR("2"), XOR("3"), XOR("4"), XOR("5"), XOR("6") });
-		config.RemoveFlags(ElementFlags::SAVE);
-		RegisterElement(&config, 1);
-
-		key1.setup(XOR("configuration key 1"), XOR("cfg_key1"));
-		key1.RemoveFlags(ElementFlags::SAVE);
-		key1.SetCallback(callbacks::SaveHotkeys);
-		key1.AddShowCallback(callbacks::IsConfig1);
-		key1.SetToggleCallback(callbacks::ConfigLoad1);
-		RegisterElement(&key1, 1);
-
-		key2.setup(XOR("configuration key 2"), XOR("cfg_key2"));
-		key2.RemoveFlags(ElementFlags::SAVE);
-		key2.SetCallback(callbacks::SaveHotkeys);
-		key2.AddShowCallback(callbacks::IsConfig2);
-		key2.SetToggleCallback(callbacks::ConfigLoad2);
-		RegisterElement(&key2, 1);
-
-		key3.setup(XOR("configuration key 3"), XOR("cfg_key3"));
-		key3.RemoveFlags(ElementFlags::SAVE);
-		key3.SetCallback(callbacks::SaveHotkeys);
-		key3.AddShowCallback(callbacks::IsConfig3);
-		key3.SetToggleCallback(callbacks::ConfigLoad3);
-		RegisterElement(&key3, 1);
-
-		key4.setup(XOR("configuration key 4"), XOR("cfg_key4"));
-		key4.RemoveFlags(ElementFlags::SAVE);
-		key4.SetCallback(callbacks::SaveHotkeys);
-		key4.AddShowCallback(callbacks::IsConfig4);
-		key4.SetToggleCallback(callbacks::ConfigLoad4);
-		RegisterElement(&key4, 1);
-
-		key5.setup(XOR("configuration key 5"), XOR("cfg_key5"));
-		key5.RemoveFlags(ElementFlags::SAVE);
-		key5.SetCallback(callbacks::SaveHotkeys);
-		key5.AddShowCallback(callbacks::IsConfig5);
-		key5.SetToggleCallback(callbacks::ConfigLoad5);
-		RegisterElement(&key5, 1);
-
-		key6.setup(XOR("configuration key 6"), XOR("cfg_key6"));
-		key6.RemoveFlags(ElementFlags::SAVE);
-		key6.SetCallback(callbacks::SaveHotkeys);
-		key6.AddShowCallback(callbacks::IsConfig6);
-		key6.SetToggleCallback(callbacks::ConfigLoad6);
-		RegisterElement(&key6, 1);
-
-		save.setup(XOR("save"));
-		save.SetCallback(callbacks::ConfigSave);
-		RegisterElement(&save, 1);
-
-		load.setup(XOR("load"));
-		load.SetCallback(callbacks::ConfigLoad);
-		RegisterElement(&load, 1);
 	}
 };
 
@@ -2719,7 +2710,6 @@ public:
 	MovementTab  movement;
 	SkinsTab     skins;
 	MiscTab	     misc;
-	ConfigTab	 config;
 
 public:
 	void init() {
@@ -2750,8 +2740,6 @@ public:
 		RegisterTab(&misc);
 		misc.init();
 
-		RegisterTab(&config);
-		config.init();
 	}
 };
 

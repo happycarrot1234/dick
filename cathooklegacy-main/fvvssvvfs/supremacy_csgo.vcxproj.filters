@@ -480,4 +480,17 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\Desktop\paster folder\cobalt\minhook.lib">
+      <Filter>Source Files</Filter>
+    </Library>
+    <Library Include="minhook\mihook-mtd.lib">
+      <Filter>Source Files</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.gitignore">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

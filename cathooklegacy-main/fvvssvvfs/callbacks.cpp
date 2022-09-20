@@ -56,7 +56,7 @@ void callbacks::SaveHotkeys() {
 void callbacks::ConfigLoad1() {
 	g_aimbot.m_fake_latency = false;
 	g_config.load(&g_menu.main, XOR("1.cfg"));
-	g_menu.main.config.config.select(1 - 1);
+	g_menu.main.misc.config.select(1 - 1);
 
 	g_cl.print(tfm::format(XOR("loaded config 1\n")));
 }
@@ -249,41 +249,41 @@ void callbacks::ToggleDMG() {
 void callbacks::ConfigLoad2() {
 	g_aimbot.m_fake_latency = false;
 	g_config.load(&g_menu.main, XOR("2.cfg"));
-	g_menu.main.config.config.select(2 - 1);
+	g_menu.main.misc.config.select(2 - 1);
 	g_cl.print(tfm::format(XOR("loaded config 2\n")));
 }
 
 void callbacks::ConfigLoad3() {
 	g_aimbot.m_fake_latency = false;
 	g_config.load(&g_menu.main, XOR("3.cfg"));
-	g_menu.main.config.config.select(3 - 1);
+	g_menu.main.misc.config.select(3 - 1);
 	g_cl.print(tfm::format(XOR("loaded config 3\n")));
 }
 
 void callbacks::ConfigLoad4() {
 	g_aimbot.m_fake_latency = false;
 	g_config.load(&g_menu.main, XOR("4.cfg"));
-	g_menu.main.config.config.select(4 - 1);
+	g_menu.main.misc.config.select(4 - 1);
 	g_cl.print(tfm::format(XOR("loaded config 4\n")));
 }
 
 void callbacks::ConfigLoad5() {
 	g_aimbot.m_fake_latency = false;
 	g_config.load(&g_menu.main, XOR("5.cfg"));
-	g_menu.main.config.config.select(5 - 1);
+	g_menu.main.misc.config.select(5 - 1);
 	g_cl.print(tfm::format(XOR("loaded config 5\n")));
 }
 
 void callbacks::ConfigLoad6() {
 	g_aimbot.m_fake_latency = false;
 	g_config.load(&g_menu.main, XOR("6.cfg"));
-	g_menu.main.config.config.select(6 - 1);
+	g_menu.main.misc.config.select(6 - 1);
 	g_cl.print(tfm::format(XOR("loaded config 6\n")));
 }
 
 void callbacks::ConfigLoad() {
 	g_aimbot.m_fake_latency = false;
-	std::string config = g_menu.main.config.config.GetActiveItem();
+	std::string config = g_menu.main.misc.config.GetActiveItem();
 	std::string file = tfm::format(XOR("%s.cfg"), config.data());
 
 	g_config.load(&g_menu.main, file);
@@ -292,7 +292,7 @@ void callbacks::ConfigLoad() {
 
 void callbacks::ConfigSave() {
 	g_aimbot.m_fake_latency = false;
-	std::string config = g_menu.main.config.config.GetActiveItem();
+	std::string config = g_menu.main.misc.config.GetActiveItem();
 	std::string file = tfm::format(XOR("%s.cfg"), config.data());
 
 	g_config.save(&g_menu.main, file);
@@ -453,35 +453,35 @@ bool callbacks::IsFakeAntiAimJitter() {
 }
 
 bool callbacks::IsConfigMM() {
-	return g_menu.main.config.mode.get() == 0;
+	return g_menu.main.misc.mode.get() == 0;
 }
 
 bool callbacks::IsConfigNS() {
-	return g_menu.main.config.mode.get() == 1;
+	return g_menu.main.misc.mode.get() == 1;
 }
 
 bool callbacks::IsConfig1() {
-	return g_menu.main.config.config.get() == 0;
+	return g_menu.main.misc.config.get() == 0;
 }
 
 bool callbacks::IsConfig2() {
-	return g_menu.main.config.config.get() == 1;
+	return g_menu.main.misc.config.get() == 1;
 }
 
 bool callbacks::IsConfig3() {
-	return g_menu.main.config.config.get() == 2;
+	return g_menu.main.misc.config.get() == 2;
 }
 
 bool callbacks::IsConfig4() {
-	return g_menu.main.config.config.get() == 3;
+	return g_menu.main.misc.config.get() == 3;
 }
 
 bool callbacks::IsConfig5() {
-	return g_menu.main.config.config.get() == 4;
+	return g_menu.main.misc.config.get() == 4;
 }
 
 bool callbacks::IsConfig6() {
-	return g_menu.main.config.config.get() == 5;
+	return g_menu.main.misc.config.get() == 5;
 }
 
 // weaponcfgs callbacks.

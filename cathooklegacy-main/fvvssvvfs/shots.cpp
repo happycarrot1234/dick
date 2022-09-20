@@ -211,7 +211,7 @@ void Shots::OnImpact(IGameEvent* evt) {
 		m_impacts.pop_back();
 
 	// nospread mode.
-	if (g_menu.main.config.mode.get() == 1)
+	if (g_menu.main.misc.mode.get() == 1)
 		return;
 
 	// not in nospread mode, see if the shot missed due to spread.

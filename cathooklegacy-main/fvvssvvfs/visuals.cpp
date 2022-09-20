@@ -483,6 +483,24 @@ void Visuals::StatusIndicators() {
 		indicators.push_back(ind);
 	}
 
+	// DAMAGE OVERRIDE
+	if (g_menu.main.visuals.indicators.get(3)) {
+		Indicator_t ind{ };
+		ind.color = g_aimbot.m_damage_toggle ? 0xff15c27b : 0xff0000ff;
+		ind.text = XOR("DAMAGE");
+
+		indicators.push_back(ind);
+	}
+
+	// FORCE BODY AIM
+	if (g_menu.main.visuals.indicators.get(4)) {
+		Indicator_t ind{ };
+		ind.color = g_aimbot.m_baim_toggle ? 0xff15c27b : 0xff0000ff;
+		ind.text = XOR("FBAIM");
+
+		indicators.push_back(ind);
+	}
+
 	if (indicators.empty())
 		return;
 
@@ -1030,8 +1048,8 @@ void Visuals::OffScreen(Player* player, int alpha) {
 		|| screen_pos.y < -leeway_y
 		|| screen_pos.y >(g_cl.m_height + leeway_y)) {
 
-		float size = g_menu.main.config.offscreen_mode.get() / 100.f;
-		float pos = g_menu.main.config.offscreen_mode1.get();
+		float size = g_menu.main.misc.offscreen_mode.get() / 100.f;
+		float pos = g_menu.main.misc.offscreen_mode1.get();
 
 		// get viewport origin.
 		view_origin = g_csgo.m_view_render->m_view.m_origin;
@@ -1669,7 +1687,7 @@ void Visuals::DrawHistorySkeleton(Player* player, int opacity) {
 	vec3_t        bone_pos, parent_pos;
 	vec2_t        bone_pos_screen, parent_pos_screen;
 
-	if (!g_menu.main.misc.fake_latency.get())
+	if (!g_menu.main.antiaim.fake_latency.get())
 		return;
 
 	// get player's model.

@@ -7,7 +7,7 @@ int Hooks::SendDatagram( void* data ) {
 	int backup2 = g_csgo.m_net->m_in_seq;
 
 	if( g_aimbot.m_fake_latency) {
-		int ping = g_menu.main.misc.fake_latency_amt.get( );
+		int ping = g_menu.main.antiaim.fake_latency_amt.get( );
 
 		// the target latency.
 		float correct = std::max( 0.f, ( ping / 1000.f ) - g_cl.m_latency - g_cl.m_lerp );

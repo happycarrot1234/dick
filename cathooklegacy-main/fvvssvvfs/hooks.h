@@ -1,5 +1,8 @@
 #pragma once
 
+typedef void(*CLMove_t)(float accumulated_extra_samples, bool bFinalTick);
+inline CLMove_t o_CLMove;
+
 class Hooks {
 public:
 	void init();
@@ -15,6 +18,7 @@ public:
 	using LevelInitPostEntity_t = void(__thiscall*)(void*);
 	using LevelShutdown_t = void(__thiscall*)(void*);
 	using LevelInitPreEntity_t = void(__thiscall*)(void*, const char*);
+	using WriteUsercmdDeltaToBuffer_t = bool(__thiscall*)(void*, int, bf_write*, int, int, bool);
 	using IN_KeyEvent_t = int(__thiscall*)(void*, int, int, const char*);
 	using FrameStageNotify_t = void(__thiscall*)(void*, Stage_t);
 	using UpdateClientSideAnimation_t = void(__thiscall*)(void*);
@@ -64,6 +68,7 @@ public:
 	void                     LevelShutdown();
 	//int                      IN_KeyEvent( int event, int key, const char* bind );
 	void                     LevelInitPreEntity(const char* map);
+	bool                     WriteUsercmdDeltaToBuffer(int slot, bf_write* buf, int from, int to, bool isnewcommand);
 	void                     FrameStageNotify(Stage_t stage);
 	void                     UpdateClientSideAnimation();
 	Weapon* GetActiveWeapon();

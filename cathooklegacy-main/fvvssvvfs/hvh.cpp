@@ -11,7 +11,7 @@ void HVH::IdealPitch() {
 }
 
 void HVH::AntiAimPitch() {
-	bool safe = g_menu.main.config.mode.get() == 0;
+	bool safe = g_menu.main.misc.mode.get() == 0;
 
 	switch (m_pitch) {
 	case 1:
@@ -830,103 +830,107 @@ void HVH::SendPacket() {
 		// delta between the current origin and the last sent origin.
 		float delta = (cur - prev).length_sqr();
 
-		auto activation = g_menu.main.antiaim.lag_active.GetActiveIndices();
-		for (auto it = activation.begin(); it != activation.end(); it++) {
+		if (g_aimbot.CanDT())
+			active = false;
+		else {
+			auto activation = g_menu.main.antiaim.lag_active.GetActiveIndices();
+			for (auto it = activation.begin(); it != activation.end(); it++) {
 
-			// move.
-			if (*it == 0 && delta > 0.1f && g_cl.m_speed > 0.1f) {
-				active = true;
-				break;
-			}
-
-			// air.
-			else if (*it == 1 && ((g_cl.m_buttons & IN_JUMP) || !(g_cl.m_flags & FL_ONGROUND))) {
-				active = true;
-				break;
-			}
-
-			// crouch.
-			else if (*it == 2 && g_cl.m_local->m_bDucking()) {
-				active = true;
-				break;
-			}
-		}
-
-		if (active) {
-			int mode = g_menu.main.antiaim.lag_mode.get();
-
-			// max.
-			if (mode == 0)
-				*g_cl.m_packet = false;
-
-			// break.
-			else if (mode == 1 && delta <= 4096.f)
-				*g_cl.m_packet = false;
-
-			// random.
-			else if (mode == 2) {
-				// compute new factor.
-				if (g_cl.m_lag >= m_random_lag)
-					m_random_lag = g_csgo.RandomInt(2, limit);
-
-				// factor not met, keep choking.
-				else *g_cl.m_packet = false;
-			}
-
-			// break step.
-			else if (mode == 3) {
-				// normal break.
-				if (m_step_switch) {
-					if (delta <= 4096.f)
-						*g_cl.m_packet = false;
+				// move.
+				if (*it == 0 && delta > 0.1f && g_cl.m_speed > 0.1f) {
+					active = true;
+					break;
 				}
 
-				// max.
-				else *g_cl.m_packet = false;
+				// air.
+				else if (*it == 1 && ((g_cl.m_buttons & IN_JUMP) || !(g_cl.m_flags & FL_ONGROUND))) {
+					active = true;
+					break;
+				}
+
+				// crouch.
+				else if (*it == 2 && g_cl.m_local->m_bDucking()) {
+					active = true;
+					break;
+				}
 			}
 
-			if (g_cl.m_lag >= limit)
+			if (active) {
+				int mode = g_menu.main.antiaim.lag_mode.get();
+
+				// max.
+				if (mode == 0)
+					*g_cl.m_packet = false;
+
+				// break.
+				else if (mode == 1 && delta <= 4096.f)
+					*g_cl.m_packet = false;
+
+				// random.
+				else if (mode == 2) {
+					// compute new factor.
+					if (g_cl.m_lag >= m_random_lag)
+						m_random_lag = g_csgo.RandomInt(2, limit);
+
+					// factor not met, keep choking.
+					else *g_cl.m_packet = false;
+				}
+
+				// break step.
+				else if (mode == 3) {
+					// normal break.
+					if (m_step_switch) {
+						if (delta <= 4096.f)
+							*g_cl.m_packet = false;
+					}
+
+					// max.
+					else *g_cl.m_packet = false;
+				}
+
+				if (g_cl.m_lag >= limit)
+					*g_cl.m_packet = true;
+			}
+		}
+
+		if (!g_menu.main.antiaim.lag_land.get()) {
+			vec3_t                start = g_cl.m_local->m_vecOrigin(), end = start, vel = g_cl.m_local->m_vecVelocity();
+			CTraceFilterWorldOnly filter;
+			CGameTrace            trace;
+
+			// gravity.
+			vel.z -= (g_csgo.sv_gravity->GetFloat() * g_csgo.m_globals->m_interval);
+
+			// extrapolate.
+			end += (vel * g_csgo.m_globals->m_interval);
+
+			// move down.
+			end.z -= 2.f;
+
+			g_csgo.m_engine_trace->TraceRay(Ray(start, end), MASK_SOLID, &filter, &trace);
+
+			// check if landed.
+			if (trace.m_fraction != 1.f && trace.m_plane.m_normal.z > 0.7f && !(g_cl.m_flags & FL_ONGROUND))
 				*g_cl.m_packet = true;
 		}
-	}
 
-	if (!g_menu.main.antiaim.lag_land.get()) {
-		vec3_t                start = g_cl.m_local->m_vecOrigin(), end = start, vel = g_cl.m_local->m_vecVelocity();
-		CTraceFilterWorldOnly filter;
-		CGameTrace            trace;
+		// force fake-lag to 14 when fakelagging.
+		if (g_input.GetKeyState(g_menu.main.movement.fakewalk.get())) {
+			*g_cl.m_packet = false;
+		}
 
-		// gravity.
-		vel.z -= (g_csgo.sv_gravity->GetFloat() * g_csgo.m_globals->m_interval);
-
-		// extrapolate.
-		end += (vel * g_csgo.m_globals->m_interval);
-
-		// move down.
-		end.z -= 2.f;
-
-		g_csgo.m_engine_trace->TraceRay(Ray(start, end), MASK_SOLID, &filter, &trace);
-
-		// check if landed.
-		if (trace.m_fraction != 1.f && trace.m_plane.m_normal.z > 0.7f && !(g_cl.m_flags & FL_ONGROUND))
+		// do not lag while shooting.
+		if (g_cl.m_old_shot)
 			*g_cl.m_packet = true;
-	}
 
-	// force fake-lag to 14 when fakelagging.
-	if (g_input.GetKeyState(g_menu.main.movement.fakewalk.get())) {
-		*g_cl.m_packet = false;
-	}
+		// we somehow reached the maximum amount of lag.
+		// we cannot lag anymore and we also cannot shoot anymore since we cant silent aim.
+		if (g_cl.m_lag >= g_cl.m_max_lag) {
+			// set bSendPacket to true.
+			*g_cl.m_packet = true;
 
-	// do not lag while shooting.
-	if (g_cl.m_old_shot)
-		*g_cl.m_packet = true;
-
-	// we somehow reached the maximum amount of lag.
-	// we cannot lag anymore and we also cannot shoot anymore since we cant silent aim.
-	if (g_cl.m_lag >= g_cl.m_max_lag) {
-		// set bSendPacket to true.
-		*g_cl.m_packet = true;
-
-		// disable firing, since we cannot choke the last packet.
-		g_cl.m_weapon_fire = false;
+			// disable firing, since we cannot choke the last packet.
+			g_cl.m_weapon_fire = false;
+		}
 	}
 }

@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "minhook/minhook.h"
 
 Hooks                g_hooks{ };;
 CustomEntityListener g_custom_entity_listener{ };;
@@ -117,10 +118,53 @@ void Force_proxy( CRecvProxyData *data, Address ptr, Address out ) {
 		g_hooks.m_Force_original( data, ptr, out );
 }
 
+void CL_Move(float accumulated_extra_samples, bool bFinalTick) {
+	auto original = o_CLMove;
+
+
+	// Recharge every other tick
+// By not sending a command this tick, our commands allowed for simulation goes up so we can shift again
+// Task for the reader: Automate this properly without preventing the second DT shot...
+	if (g_csgo.m_globals->m_tick_count % 2 && g_cl.doubletapCharge < 15) {
+		g_cl.doubletapCharge++;
+		// Task for the reader: Tickbase still increases when recharging, but the client doesn't know that...
+		return;
+	}
+
+	original(accumulated_extra_samples, bFinalTick);
+
+	//////// Shift if needed
+	// Every time we call original again, we create another command to send to the server
+	// All of these extra commands will be simulated by the server as long as we have a tick allowed for simulation
+	// Recharging "earns" us extra ticks allowed for simulation, which we can "spend" via sending multiple commands to shift
+
+	// Task for the reader: Fix tickbase (not required for shifting but will prevent pred errors and occasional failure to predict the third shot)
+	// Hint #1: Look where the game modifies m_nTickbase and do stuff there
+	// Hint #2: Print out your serverside tickbase and see how it changes when you shift
+	g_cl.isShifting = true;
+	{
+		for (g_cl.ticksToShift = std::min(g_cl.doubletapCharge, g_cl.ticksToShift); g_cl.ticksToShift > 0; g_cl.ticksToShift--) {
+			original(accumulated_extra_samples, bFinalTick); // Create an extra movement command (will call CreateMove)
+			if (g_cl.ticksToShift <= 1) {
+				g_cl.lastShiftedCmdNr = g_csgo.m_cl->m_last_outgoing_command;
+			}
+		}
+	}
+	g_cl.isShifting = false;
+	g_cl.ignoreallcmds = false;
+	//return (void)original(accumulated_extra_samples, bFinalTick);
+}
+
+
 void Hooks::init() {
+	MH_Initialize();
+	MH_CreateHook(pattern::find(PE::GetModule(HASH("engine.dll")), XOR("55 8B EC 81 EC ? ? ? ? 53 56 57 8B 3D ? ? ? ? 8A")), &CL_Move, reinterpret_cast<void**>(&o_CLMove));
+	MH_EnableHook(MH_ALL_HOOKS);
+
 	// hook wndproc.
 	auto m_hWindow = FindWindowA(XOR("Valve001"), NULL);
-	m_old_wndproc = (WNDPROC)g_winapi.SetWindowLongA(m_hWindow, GWL_WNDPROC, util::force_cast<LONG>(Hooks::WndProc));
+	auto m_window = m_hWindow;
+	m_old_wndproc = (WNDPROC)g_winapi.SetWindowLongA(g_csgo.m_game->m_hWindow, GWL_WNDPROC, util::force_cast<LONG>(Hooks::WndProc));
 
 	// setup normal VMT hooks.
 	m_panel.init(g_csgo.m_panel);
@@ -131,6 +175,7 @@ void Hooks::init() {
 	m_client.add(CHLClient::LEVELINITPOSTENTITY, util::force_cast(&Hooks::LevelInitPostEntity));
 	m_client.add(CHLClient::LEVELSHUTDOWN, util::force_cast(&Hooks::LevelShutdown));
 	m_client.add(CHLClient::FRAMESTAGENOTIFY, util::force_cast(&Hooks::FrameStageNotify));
+	m_client.add(CHLClient::USRCMDTODELTABUFFER, util::force_cast(&Hooks::WriteUsercmdDeltaToBuffer));
 
 	m_engine.init(g_csgo.m_engine);
 	m_engine.add(IVEngineClient::ISCONNECTED, util::force_cast(&Hooks::IsConnected));

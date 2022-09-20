@@ -53,12 +53,12 @@ void Config::LoadHotkeys( ) {
 	nlohmann::json config{ nlohmann::json::parse( crypto::base64_decode( data ) ) };
 
 	// load all keys from the json.
-	g_menu.main.config.key1.set( config[ g_menu.main.config.key1.m_file_id ] );
-	g_menu.main.config.key2.set( config[ g_menu.main.config.key2.m_file_id ] );
-	g_menu.main.config.key3.set( config[ g_menu.main.config.key3.m_file_id ] );
-	g_menu.main.config.key4.set( config[ g_menu.main.config.key4.m_file_id ] );
-	g_menu.main.config.key5.set( config[ g_menu.main.config.key5.m_file_id ] );
-	g_menu.main.config.key6.set( config[ g_menu.main.config.key6.m_file_id ] );
+	g_menu.main.misc.key1.set( config[ g_menu.main.misc.key1.m_file_id ] );
+	g_menu.main.misc.key2.set( config[ g_menu.main.misc.key2.m_file_id ] );
+	g_menu.main.misc.key3.set( config[ g_menu.main.misc.key3.m_file_id ] );
+	g_menu.main.misc.key4.set( config[ g_menu.main.misc.key4.m_file_id ] );
+	g_menu.main.misc.key5.set( config[ g_menu.main.misc.key5.m_file_id ] );
+	g_menu.main.misc.key6.set( config[ g_menu.main.misc.key6.m_file_id ] );
 }
 
 void Config::SaveHotkeys( ) {
@@ -81,12 +81,12 @@ void Config::SaveHotkeys( ) {
 	}
 
 	// save all keys to the json.
-	config[ g_menu.main.config.key1.m_file_id ] = g_menu.main.config.key1.get( );
-	config[ g_menu.main.config.key2.m_file_id ] = g_menu.main.config.key2.get( );
-	config[ g_menu.main.config.key3.m_file_id ] = g_menu.main.config.key3.get( );
-	config[ g_menu.main.config.key4.m_file_id ] = g_menu.main.config.key4.get( );
-	config[ g_menu.main.config.key5.m_file_id ] = g_menu.main.config.key5.get( );
-	config[ g_menu.main.config.key6.m_file_id ] = g_menu.main.config.key6.get( );
+	config[ g_menu.main.misc.key1.m_file_id ] = g_menu.main.misc.key1.get( );
+	config[ g_menu.main.misc.key2.m_file_id ] = g_menu.main.misc.key2.get( );
+	config[ g_menu.main.misc.key3.m_file_id ] = g_menu.main.misc.key3.get( );
+	config[ g_menu.main.misc.key4.m_file_id ] = g_menu.main.misc.key4.get( );
+	config[ g_menu.main.misc.key5.m_file_id ] = g_menu.main.misc.key5.get( );
+	config[ g_menu.main.misc.key6.m_file_id ] = g_menu.main.misc.key6.get( );
 
 	// write to file.
 	stream << crypto::base64_encode( config.dump( ) );
