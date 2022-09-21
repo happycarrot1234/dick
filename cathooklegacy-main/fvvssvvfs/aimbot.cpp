@@ -1362,13 +1362,13 @@ void Aimbot::find() {
 		bool on;
 
 		if (g_cl.m_weapon_id == SSG08)
-			on = g_menu.main.aimbot.scout_hitchanceval.get() && g_menu.main.config.mode.get() == 0;
+			on = g_menu.main.aimbot.scout_hitchanceval.get() && g_menu.main.misc.mode.get() == 0;
 		else if (g_cl.m_weapon_id == G3SG1 || g_cl.m_weapon_id == SCAR20)
-			on = g_menu.main.aimbot.auto_hitchanceval.get() && g_menu.main.config.mode.get() == 0;
+			on = g_menu.main.aimbot.auto_hitchanceval.get() && g_menu.main.misc.mode.get() == 0;
 		else if (g_cl.m_weapon_id == AWP)
-			on = g_menu.main.aimbot.awp_hitchanceval.get() && g_menu.main.config.mode.get() == 0;
+			on = g_menu.main.aimbot.awp_hitchanceval.get() && g_menu.main.misc.mode.get() == 0;
 		else
-			on = g_menu.main.aimbot.general_hitchanceval.get() && g_menu.main.config.mode.get() == 0;
+			on = g_menu.main.aimbot.general_hitchanceval.get() && g_menu.main.misc.mode.get() == 0;
 
 		bool hit = on && CheckHitchance(m_target, m_angle);
 
@@ -1391,7 +1391,7 @@ void Aimbot::find() {
 
 		if (hit || !on) {
 			// right click attack.
-			if (g_menu.main.config.mode.get() == 1 && g_cl.m_weapon_id == REVOLVER)
+			if (g_menu.main.misc.mode.get() == 1 && g_cl.m_weapon_id == REVOLVER)
 				g_cl.m_cmd->m_buttons |= IN_ATTACK2;
 
 			// left click attack.
@@ -2639,7 +2639,7 @@ void Aimbot::apply() {
 		}
 
 		// nospread.
-		if (g_menu.main.aimbot.nospread.get() && g_menu.main.config.mode.get() == 1)
+		if (g_menu.main.aimbot.nospread.get() && g_menu.main.misc.mode.get() == 1)
 			NoSpread();
 
 		// norecoil.

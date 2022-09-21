@@ -5,6 +5,7 @@ public:
 	// col1.
 	Checkbox	  enable;
 	Checkbox	  silent;
+	Checkbox	  show_aimbot_test;
 	Dropdown	  selection;
 	Dropdown	  weaponselect;
 	//Dropdown	  selection;
@@ -156,6 +157,9 @@ public:
 
 		silent.setup(XOR("silent aimbot"), XOR("silent"));
 		RegisterElement(&silent);
+
+		show_aimbot_test.setup(XOR("visualize resover test"), XOR("show_aimbot_test"));
+		RegisterElement(&show_aimbot_test);
 
 		selection.setup(XOR("target selection"), XOR("selection"), { XOR("distance"), XOR("damage"), XOR("health"), XOR("lag"), XOR("height") });
 		RegisterElement(&selection);
@@ -2520,6 +2524,8 @@ public:
 	Checkbox autoaccept;
 	Checkbox unlock;
 	Checkbox hitmarker;
+	Colorpicker show_damage_color;
+	Colorpicker show_damage_color_headshot;
 	Checkbox ragdoll_force;
 	Checkbox killfeed;
 	Checkbox clantag;
@@ -2662,6 +2668,12 @@ public:
 
 		hitmarker.setup(XOR("hitmarker"), XOR("hitmarker"));
 		RegisterElement(&hitmarker, 1);
+
+		show_damage_color.setup(XOR("damage hitmarker color"), XOR("show_damage_color"), colors::burgundy);
+		RegisterElement(&show_damage_color, 1);
+
+		show_damage_color_headshot.setup(XOR("headshot damage hitmarker color"), XOR("show_damage_color_headshot"), colors::burgundy);
+		RegisterElement(&show_damage_color_headshot, 1);
 
 		ragdoll_force.setup(XOR("ragdoll force"), XOR("ragdoll_force"));
 		RegisterElement(&ragdoll_force, 1);

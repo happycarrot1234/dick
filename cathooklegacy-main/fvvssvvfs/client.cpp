@@ -43,15 +43,50 @@ void Client::DrawHUD() {
 		text = tfm::format(XOR("Cathook.pub [Debug] |  Build Date: " __DATE__ "  | delay: %ims | rate: %i | %s"), ms, rate, time.str().data());
 	}
 
-	render::FontSize_t size = render::esp.size(text);
+	render::FontSize_t size = render::esp.size(text); 
 
-	// background.
-	render::rect_outlined(m_width - size.m_width - 20, 10, size.m_width + 10, size.m_height + 2, { menu.r(), menu.g(), menu.b(), 90 }, { menu.r(), menu.g(), menu.b(), 20 });
+		// background.
+		render::rect_outlined(m_width - size.m_width - 20, 10, size.m_width + 10, size.m_height + 2, { menu.r(), menu.g(), menu.b(), 90 }, { menu.r(), menu.g(), menu.b(), 20 });
 
-	render::gradient(m_width - size.m_width - 20, 10, size.m_width + 10, size.m_height + 2, { menu.r(), menu.g(), menu.b(), 90 }, { menu.r(), menu.g(), menu.b(), 20 });
-	// text.
-	render::esp.string(m_width - 15, 11, { 255, 255, 255, 150 }, text, render::ALIGN_RIGHT);
+		render::gradient(m_width - size.m_width - 20, 10, size.m_width + 10, size.m_height + 2, { menu.r(), menu.g(), menu.b(), 90 }, { menu.r(), menu.g(), menu.b(), 20 });
+		// text.
+		render::esp.string(m_width - 15, 11, { 255, 255, 255, 150 }, text, render::ALIGN_RIGHT);
+	
+/*		struct debug_t {
+			std::string info;
+			Color clr;
 
+			debug_t(std::string i, Color a = colors::white) {
+				info = i; clr = a;
+			}
+		};
+		std::deque<debug_t> log;
+
+		auto data = !g_aimbot.m_target ? g_aimbot.m_targets.empty() ? nullptr : g_aimbot.m_targets.front() : &g_aimbot.m_players[g_aimbot.m_target->index()];
+		if (data) {
+
+			auto _lt_f{ 1.f - (g_aimbot.m_targets.size()) };
+
+			if (data->m_stand_index)
+				log.push_front(debug_t(tfm::format("%s :- is standing", std::to_string(data->m_player->index()))));
+
+			if (data->m_stand_index2)
+				log.push_front(debug_t(tfm::format("%s :- is standing", std::to_string(data->m_player->index()))));
+
+			if (data->m_stand_index3)
+				log.push_front(debug_t(tfm::format("%s :- is standing", std::to_string(data->m_player->index()))));
+
+			if (data->m_moving_index)
+				log.push_front(debug_t(tfm::format("%s :- is moving", std::to_string(data->m_player->index()))));
+
+			if (data->m_air_index)
+				log.push_front(debug_t(tfm::format("%s :- is in air", std::to_string(data->m_player->index()))));
+
+			if (data->m_last_move)
+				log.push_front(debug_t(tfm::format("%s :- lastmove", std::to_string(data->m_player->index()))));
+
+			if (data->m_brute_index)
+				log.push_front(debug_t(tfm::format("%s :- bruteforce", std::to_string(data->m_player->index()))));*/
 }
 
 void Client::UnlockHiddenConvars()

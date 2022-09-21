@@ -58,6 +58,9 @@ public:
 public:
 	// local player variables.
 	Player* m_local;
+	int get_fps() {
+		return (int)std::round(1.f / g_csgo.m_globals->m_frametime);
+	}
 
 	// writeusr variables.
 	int				 m_tick_to_shift;

@@ -24,7 +24,7 @@ void render::init() {
 	cs = Font(XOR("Counter-Strike"), 28, FW_MEDIUM, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 	indicator = Font(XOR("Verdana"), 26, FW_BOLD, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
 	logevent = Font(XOR("Segoe UI"), 15, FW_NORMAL, FONTFLAG_ANTIALIAS | FONTFLAG_DROPSHADOW);
-	damage = Font(XOR("Tahoma"), 15, FW_NORMAL, FONTFLAG_DROPSHADOW);
+	damage = Font(XOR("Tahoma"), 15, FW_NORMAL, FONTFLAG_DROPSHADOW | FONTFLAG_ANTIALIAS);
 	grenade = Font(XOR("Undefeated"), 15, FW_DONTCARE, FONTFLAG_DROPSHADOW);
 }
 

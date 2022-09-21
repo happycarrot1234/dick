@@ -211,6 +211,7 @@ void Visuals::IndicateAngles()
 
 void Visuals::Hitmarker() {
 
+
 	static auto cross = g_csgo.m_cvar->FindVar(HASH("weapon_debug_spread_show"));
 	cross->SetValue(g_menu.main.visuals.force_xhair.get() && !g_cl.m_local->m_bIsScoped() ? 3 : 0);
 	if (!g_menu.main.misc.hitmarker.get())
@@ -221,6 +222,9 @@ void Visuals::Hitmarker() {
 
 	if (m_hit_duration <= 0.f)
 		return;
+	Color norm = g_menu.main.misc.show_damage_color.get();
+
+	Color HS = g_menu.main.misc.show_damage_color_headshot.get();
 
 	float complete = (g_csgo.m_globals->m_curtime - m_hit_start) / m_hit_duration;
 	int x = g_cl.m_width,
@@ -278,10 +282,10 @@ void Visuals::Hitmarker() {
 
 			// text damage
 			if (!g_shots.iHeadshot)
-				render::damage.string(box.x + box.w / 2, box.y - render::esp.m_size.m_height - 10, { 255, 0, 0, alpha }, out, render::ALIGN_CENTER);
+				render::damage.string(box.x + box.w / 2, box.y - render::esp.m_size.m_height - 10, { norm.r(), norm.g(), norm.b(), 90 }, out, render::ALIGN_CENTER);
 
 			if (g_shots.iHeadshot == true)
-				render::damage.string(box.x + box.w / 2, box.y - render::esp.m_size.m_height - 20, { 30, 180, 30, alpha }, out, render::ALIGN_CENTER);
+				render::damage.string(box.x + box.w / 2, box.y - render::esp.m_size.m_height - 20, { HS.r(), HS.g(), HS.b(), 90 }, out, render::ALIGN_CENTER);
 		}
 	}
 }
@@ -1912,6 +1916,48 @@ void Visuals::DrawBeams() {
 	BeamInfo_t beam_info;
 	Beam_t* beam;
 
+	static float x = 0, y = 0;
+	static float r = 0, g = 0, b = 0;
+
+	if (y >= 0.0f && y < 255.0f) {
+		r = 255.0f;
+		g = 0.0f;
+		b = x;
+	}
+	else if (y >= 255.0f && y < 510.0f) {
+		r = 255.0f - x;
+		g = 0.0f;
+		b = 255.0f;
+	}
+	else if (y >= 510.0f && y < 765.0f) {
+		r = 0.0f;
+		g = x;
+		b = 255.0f;
+	}
+	else if (y >= 765.0f && y < 1020.0f) {
+		r = 0.0f;
+		g = 255.0f;
+		b = 255.0f - x;
+	}
+	else if (y >= 1020.0f && y < 1275.0f) {
+		r = x;
+		g = 255.0f;
+		b = 0.0f;
+	}
+	else if (y >= 1275.0f && y < 1530.0f) {
+		r = 255.0f;
+		g = 255.0f - x;
+		b = 0.0f;
+	}
+
+	x += 5.f; //increase this value to switch colors faster
+	if (x >= 255.0f)
+		x = 0.0f;
+
+	y += 1.f; //increase this value to switch colors faster
+	if (y > 1530.0f)
+		y = 0.0f;
+
 	if (!g_cl.m_local)
 		return;
 
@@ -1978,34 +2024,35 @@ void Visuals::DrawBeams() {
 				// note - dex; possible beam models: sprites/physbeam.vmt | sprites/white.vmt
 				beam_info.m_vecStart = start;
 				beam_info.m_vecEnd = end;
-				beam_info.m_nModelIndex = g_csgo.m_model_info->GetModelIndex(XOR("sprites/purplelaser1.vmt"));
-				beam_info.m_pszModelName = XOR("sprites/purplelaser1.vmt");
+				beam_info.m_nModelIndex = g_csgo.m_model_info->GetModelIndex(XOR("sprites/white.vmt"));
+				beam_info.m_pszModelName = XOR("sprites/white.vmt");
 				beam_info.m_flHaloScale = 0.f;
 				beam_info.m_flLife = g_menu.main.visuals.impact_beams_time.get();
-				beam_info.m_flWidth = 2.f;
-				beam_info.m_flEndWidth = 2.f;
-				beam_info.m_flFadeLength = 0.f;
-				beam_info.m_flAmplitude = 0.f;   // beam 'jitter'.
+				beam_info.m_flWidth = .6f;
+				beam_info.m_flEndWidth = .75f;
+				beam_info.m_flFadeLength = 3.0f;
+				beam_info.m_flAmplitude = 0.f;//beam 'jitter'.
 				beam_info.m_flBrightness = 255.f;
-				beam_info.m_flSpeed = 0.5f;  // seems to control how fast the 'scrolling' of beam is... once fully spawned.
-				beam_info.m_nStartFrame = 0;
-				beam_info.m_flFrameRate = 0.f;
-				beam_info.m_nSegments = 2;     // controls how much of the beam is 'split up', usually makes m_flAmplitude and m_flSpeed much more noticeable.
+				beam_info.m_flSpeed = 1.f;  // seems to control how fast the 'scrolling' of beam is... once fully spawned.
+				beam_info.m_nStartFrame = 1;
+				beam_info.m_flFrameRate = 60;
+				beam_info.m_nSegments = 4;     // controls how much of the beam is 'split up', usually makes m_flAmplitude and m_flSpeed much more noticeable.
 				beam_info.m_bRenderable = true;  // must be true or you won't see the beam.
-				beam_info.m_nFlags = 0;
+				beam_info.m_nFlags = 0x00000040 | 0x00000004 | 0x00000001 | 0x00008000;
 
-				if (!impact->m_hit_player) {
-					beam_info.m_flRed = g_menu.main.visuals.impact_beams_color.get().r();
-					beam_info.m_flGreen = g_menu.main.visuals.impact_beams_color.get().g();
-					beam_info.m_flBlue = g_menu.main.visuals.impact_beams_color.get().b();
+				{
+					if (!impact->m_hit_player) {
+						beam_info.m_flRed = g_menu.main.visuals.impact_beams_color.get().r();
+						beam_info.m_flGreen = g_menu.main.visuals.impact_beams_color.get().g();
+						beam_info.m_flBlue = g_menu.main.visuals.impact_beams_color.get().b();
+					}
+
+					else {
+						beam_info.m_flRed = g_menu.main.visuals.impact_beams_hurt_color.get().r();
+						beam_info.m_flGreen = g_menu.main.visuals.impact_beams_hurt_color.get().g();
+						beam_info.m_flBlue = g_menu.main.visuals.impact_beams_hurt_color.get().b();
+					}
 				}
-
-				else {
-					beam_info.m_flRed = g_menu.main.visuals.impact_beams_hurt_color.get().r();
-					beam_info.m_flGreen = g_menu.main.visuals.impact_beams_hurt_color.get().g();
-					beam_info.m_flBlue = g_menu.main.visuals.impact_beams_hurt_color.get().b();
-				}
-
 				// attempt to render the beam.
 				beam = game::CreateGenericBeam(beam_info);
 				if (beam) {
