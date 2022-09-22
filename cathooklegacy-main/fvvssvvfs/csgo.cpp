@@ -104,6 +104,11 @@ bool CSGO::init( ) {
     sv_clip_penetration_traces_to_players   = m_cvar->FindVar( HASH( "sv_clip_penetration_traces_to_players" ) );
     weapon_accuracy_shotgun_spread_patterns = m_cvar->FindVar( HASH( "weapon_accuracy_shotgun_spread_patterns" ) );
 	net_showfragments                       = m_cvar->FindVar( HASH( "net_showfragments" ) );
+	sv_minupdaterate = m_cvar->FindVar(HASH("sv_minupdaterate"));
+	sv_maxupdaterate = m_cvar->FindVar(HASH("sv_maxupdaterate"));
+	sv_client_min_interp_ratio = m_cvar->FindVar(HASH("sv_client_min_interp_ratio"));
+	sv_client_max_interp_ratio = m_cvar->FindVar(HASH("sv_client_max_interp_ratio"));
+	sv_max_usercmd_future_ticks = m_cvar->FindVar(HASH("sv_max_usercmd_future_ticks"));
 
 	// hehe xd.
 	name->m_callbacks.RemoveAll( );

@@ -2,6 +2,35 @@
 
 LagCompensation g_lagcomp{};;
 
+float GetLerpTime()
+{
+	float update_rate = std::clamp(g_csgo.cl_updaterate->GetFloat(), g_csgo.sv_minupdaterate->GetFloat(), g_csgo.sv_maxupdaterate->GetFloat());
+	float lerp_ratio = g_csgo.cl_interp_ratio->GetFloat();
+
+	if (lerp_ratio == 0.0f)
+		lerp_ratio = 1.0f;
+
+	float lerp_amount = g_csgo.cl_interp->GetFloat();
+
+	//decrypts(0)
+	static ConVar* pMin = g_csgo.sv_client_min_interp_ratio;
+	static ConVar* pMax = g_csgo.sv_client_max_interp_ratio;
+	//encrypts(0)
+
+	if (pMin && pMax && pMin->GetFloat() != -1.0f)
+		lerp_ratio = std::clamp(lerp_ratio, pMin->GetFloat(), pMax->GetFloat());
+
+	// i always do brackets when doing an else then an if because i have seen the compiler think it's an else if
+	else {
+		if (lerp_ratio == 0.0f)
+			lerp_ratio = 1.0f;
+	}
+
+	float ret = fmax(lerp_amount, lerp_ratio / update_rate);
+
+	return ret;
+}
+
 bool LagCompensation::StartPrediction(AimPlayer* data) {
 	// we have no data to work with.
 	// this should never happen if we call this
@@ -27,6 +56,13 @@ bool LagCompensation::StartPrediction(AimPlayer* data) {
 
 	// get first record.
 	LagRecord* record = data->m_records[0].get();
+
+	int lerpticks = game::TIME_TO_TICKS(GetLerpTime());
+	int tickbase = game::TIME_TO_TICKS(record->m_sim_time);
+	int cmd_tickcount = tickbase + lerpticks;
+	int desired_cmd_tickcount = tickbase + lerpticks;
+	int max_future_tick;
+	max_future_tick = g_csgo.m_globals->m_tick_count + g_csgo.sv_max_usercmd_future_ticks->GetInt() + 1;
 
 	// reset all prediction related variables.
 	// this has been a recurring problem in all my hacks lmfao.
@@ -72,6 +108,13 @@ bool LagCompensation::StartPrediction(AimPlayer* data) {
 	int next = record->m_tick + 1;
 	if (next + lag >= g_cl.m_arrival_tick)
 		return true;
+
+	if (desired_cmd_tickcount > max_future_tick) {
+		cmd_tickcount = max_future_tick;
+
+		std::string out = tfm::format(XOR("[ aimbot ] detected client side firing\n"));
+		g_notify.add(out);
+	}
 
 	float change = 0.f, dir = 0.f;
 

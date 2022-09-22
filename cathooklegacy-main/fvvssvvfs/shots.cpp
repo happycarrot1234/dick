@@ -46,6 +46,19 @@ void Shots::OnFrameStage()
 				continue;
 			}
 
+			AimPlayer* data = &g_aimbot.m_players[target->index() - 1];
+			if (!data) {
+				it = m_shots.erase(it);
+				continue;
+			}
+
+			// this record was deleted already.
+			if (!it->m_record->m_bones) {
+				g_notify.add(XOR("shot missed due to invalid target\n"));
+				it = m_shots.erase(it);
+				continue;
+			}
+
 			vec3_t start = it->m_pos;
 
 			vec3_t dir = (it->m_server_pos - start).normalized();

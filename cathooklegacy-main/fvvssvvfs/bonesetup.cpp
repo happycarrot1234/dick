@@ -60,7 +60,6 @@ bool Bones::BuildBones(Player* target, int mask, BoneArray* out, LagRecord* reco
 
 	// set non interpolated data.
 	target->AddEffect(EF_NOINTERP);
-	target->m_iEFlags() |= EFL_SETTING_UP_BONES;
 	target->SetAbsOrigin(record->m_pred_origin);
 	target->SetAbsAngles(record->m_abs_ang);
 	target->SetPoseParameters(record->m_poses);
@@ -78,9 +77,6 @@ bool Bones::BuildBones(Player* target, int mask, BoneArray* out, LagRecord* reco
 	uint8_t computed[0x100];
 	std::memset(computed, 0, 0x100);
 	target->BuildTransformations(hdr, pos, q, transform, mask, computed);
-
-	// remove this shit.
-	target->m_iEFlags() &= ~EFL_SETTING_UP_BONES;
 
 	// restore old matrix.
 	accessor->m_pBones = backup_matrix;

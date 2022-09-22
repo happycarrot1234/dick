@@ -64,6 +64,7 @@ public:
 	ang_t  m_abs_ang;
 	float  m_body;
 	float  m_duck;
+	float  m_feet_yaw;
 
 	// anim stuff.
 	C_AnimationLayer m_layers[ 13 ];

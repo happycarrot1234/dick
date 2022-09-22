@@ -224,6 +224,18 @@ public:
 		};
 	}
 
+	__forceinline bool  IsZero(float tolerance = 0.01f) const
+	{
+		return (this->x > -tolerance && this->x < tolerance&&
+			this->y > -tolerance && this->y < tolerance&&
+			this->z > -tolerance && this->z < tolerance);
+	}
+
+	__forceinline bool  IsValid()
+	{
+		return (isfinite(x) && isfinite(y) && isfinite(z));
+	}
+
 	__forceinline float dist_to( const vec3_t &vOther ) const {
 		vec3_t delta;
 

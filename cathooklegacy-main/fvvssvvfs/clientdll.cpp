@@ -143,7 +143,7 @@ void Hooks::FrameStageNotify( Stage_t stage ) {
 		g_cl.SetAngles( );
 
 		// apply local player animation fix.
-		g_cl.UpdateAnimations( );
+		g_cl.ApplyUpdatedAnimation();
 
         // draw our custom beams.
         g_visuals.DrawBeams( );
@@ -172,6 +172,7 @@ void Hooks::FrameStageNotify( Stage_t stage ) {
 	else if( stage == FRAME_NET_UPDATE_END ) {
         // restore non-compressed netvars.
 		g_netdata.apply( );
+		g_cl.UpdateLocalAnimations();
 
 		// update all players.
 		for( int i{ 1 }; i <= g_csgo.m_globals->m_max_clients; ++i ) {

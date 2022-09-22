@@ -21,6 +21,11 @@ public:
 	__forceinline NetPos(float time, vec3_t pos) : m_time{ time }, m_pos{ pos } {};
 };
 
+template <typename t>
+static t lerp2(float progress, const t& t1, const t& t2) {
+	return t1 + (t2 - t1) * progress;
+}
+
 class Client {
 public:
 	// hack thread.
@@ -31,10 +36,11 @@ public:
 	void BackupPlayers(bool restore);
 	void DoMove();
 	void DrawHUD();
+	void ApplyUpdatedAnimation();
+	void UpdateLocalAnimations();
 	void UnlockHiddenConvars();
 	void ClanTag();
 	void Skybox();
-	void UpdateInformation();
 	void SetAngles();
 	void UpdateAnimations();
 	void KillFeed();
@@ -91,10 +97,12 @@ public:
 	float            m_abs_yaw;
 	float            m_poses[24];
 	C_AnimationLayer m_layers[13];
+	CCSGOPlayerAnimState* fake_state = 0;
+	matrix3x4_t fake_matrix[128];
+	ang_t last_real_viewangles;
 	float			 m_left_thickness[64], m_right_thickness[64], m_at_target_angle[64];
 	int	             m_tickbase;
 	int	             m_fixed_tickbase;
-	matrix3x4_t		 fake_matrix[128];
 
 	// active weapon variables.
 	Weapon* m_weapon;
@@ -123,6 +131,10 @@ public:
 	int      m_server_tick;
 	int      m_arrival_tick;
 	int      m_width, m_height;
+
+	// animations.
+	float  m_spawn_time;
+	bool   m_update_local_animation;
 
 	// usercommand variables.
 	CUserCmd* m_cmd;

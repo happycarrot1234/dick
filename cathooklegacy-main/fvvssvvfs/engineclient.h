@@ -226,6 +226,9 @@ public:
 		return util::get_method< float( __thiscall* )( decltype( this ), int ) >( this, GETAVGLATENCY )( this, flow );
 	}
 
+	__forceinline void SendDatagram() {
+		util::get_method< void(__thiscall*)(decltype(this)) >(this, SENDDATAGRAM)(this);
+	}
 
 	__forceinline bool SendNetMsg( void* msg, bool rel = false, bool voice = false ) {
 		return util::get_method< bool( __thiscall* )( decltype( this ), void*, bool, bool ) >( this, SENDNETMSG )( this, msg, rel, voice );

@@ -115,7 +115,6 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 
 	// reset fakewalk state.
 	record->m_fake_walk = false;
-	record->m_fake_flick = false;
 	record->m_mode = Resolver::Modes::RESOLVE_NONE;
 
 	// fix velocity.
@@ -128,27 +127,27 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 			record->m_velocity = (record->m_origin - previous->m_origin) * (1.f / game::TICKS_TO_TIME(record->m_lag));
 	}
 
+	// fix gravity.
+	if (!(record->m_flags & FL_ONGROUND))
+		record->m_velocity.z -= g_csgo.sv_gravity->GetFloat() * g_csgo.m_globals->m_interval;
+	else
+		record->m_velocity.z = 0.0f;
+
 	// set this fucker, it will get overriden.
 	record->m_anim_velocity = record->m_velocity;
 
-	// fix various issues with the game eW91dHViZS5jb20vZHlsYW5ob29r
+	// fix various issues with the game
 	// these issues can only occur when a player is choking data.
 	if (record->m_lag > 1 && !bot) {
+
 		// detect fakewalk.
 		float speed = record->m_velocity.length();
-
-		bool b1 = false, b2 = false, b3 = false;
-		for (int i = 0; i < record->m_player->GetNumAnimOverlays(); i++)
-		{
-			if (record->m_layers[i].m_sequence == 26 && record->m_layers[i].m_weight < 0.4f) b1 = true;
-			if (record->m_layers[i].m_sequence == 7 && record->m_layers[i].m_weight > 0.001f) b2 = true;
-			if (record->m_layers[i].m_sequence == 2 && record->m_layers[i].m_weight == 0) b3 = true;
-		}
-
-		if (b1 && b2)
-			if (b3 || (record->m_flags & FL_DUCKING)) record->m_fake_walk = true;
-			else record->m_fake_walk = false;
-		else record->m_fake_walk = false;
+		if (record->m_flags & FL_ONGROUND
+			&& record->m_layers[4].m_weight == 0.0f
+			&& record->m_layers[5].m_weight == 0.0f
+			&& record->m_layers[6].m_playback_rate < 0.0001f
+			&& record->m_anim_velocity.length_2d() > 0.f && record->m_lag > 7)
+			record->m_fake_walk = true;
 
 		if (record->m_fake_walk)
 			record->m_anim_velocity = record->m_velocity = { 0.f, 0.f, 0.f };
@@ -160,31 +159,40 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 			LagRecord* previous = m_records[1].get();
 
 			if (previous && !previous->dormant()) {
-				// set previous flags.
-				m_player->m_fFlags() = previous->m_flags;
+				// LOL.
+				if ((record->m_origin - previous->m_origin).IsZero())
+					record->m_anim_velocity = record->m_velocity = { 0.f, 0.f, 0.f };
 
-				// strip the on ground flag.
-				m_player->m_fFlags() &= ~FL_ONGROUND;
+				// jumpfall.
+				bool bOnGround = record->m_flags & FL_ONGROUND;
+				bool bJumped = false;
+				bool bLandedOnServer = false;
+				float flLandTime = 0.f;
 
-				// been onground for 2 consecutive ticks? fuck yeah.
-				if (record->m_flags & FL_ONGROUND && previous->m_flags & FL_ONGROUND)
+				// magic llama code.
+				if (record->m_layers[4].m_cycle < 0.5f && (!(record->m_flags & FL_ONGROUND) || !(previous->m_flags & FL_ONGROUND))) {
+					flLandTime = record->m_sim_time - float(record->m_layers[4].m_playback_rate / record->m_layers[4].m_cycle);
+					bLandedOnServer = flLandTime >= previous->m_sim_time;
+				}
+
+				// jump_fall fix
+				if (bLandedOnServer && !bJumped) {
+					if (flLandTime <= record->m_anim_time) {
+						bJumped = true;
+						bOnGround = true;
+					}
+					else {
+						bOnGround = previous->m_flags & FL_ONGROUND;
+					}
+				}
+
+				// do the fix. hahaha
+				if (bOnGround) {
 					m_player->m_fFlags() |= FL_ONGROUND;
-
-				//if( record->m_layers[ 4 ].m_weight != 0.f && previous->m_layers[ 4 ].m_weight == 0.f && record->m_layers[ 5 ].m_weight != 0.f )
-				//	m_player->m_fFlags( ) |= FL_ONGROUND;
-
-				// fix jump_fall.
-				if (record->m_layers[4].m_weight != 1.f && previous->m_layers[4].m_weight == 1.f && record->m_layers[5].m_weight != 0.f)
-					m_player->m_fFlags() |= FL_ONGROUND;
-
-				if (record->m_flags & FL_ONGROUND && !(previous->m_flags & FL_ONGROUND))
+				}
+				else {
 					m_player->m_fFlags() &= ~FL_ONGROUND;
-
-				// fix crouching players.
-				// the duck amount we receive when people choke is of the last simulation.
-				// if a player chokes packets the issue here is that we will always receive the last duckamount.
-				// but we need the one that was animated.
-				// therefore we need to compute what the duckamount was at animtime.
+				}
 
 				// delta in duckamt and delta in time..
 				float duck = record->m_duck - previous->m_duck;
@@ -211,43 +219,14 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 		}
 	}
 
-	// // better fake angle detection.
-	// size_t consistency{};
-	// size_t size = std::min( 5u, m_records.size( ) );
-	// 
-	// for( size_t i{}; i < size; i++ ) {
-	//     // if we have lag on this record.
-	//     if( m_records[ i ].get( )->m_lag > 1 )
-	//         ++consistency;
-	// }
-	// 
-	// // compute lag consistency scale.
-	// float scale = ( float )consistency / ( float )size;
-	// 
-	// // if faking angles more than 80% of the time
-	// // and not bot, player uses fake angles.
-	// bool fake = g_menu.main.aimbot.correct.get( ) && !bot && scale > 0.8f;
-
-	// size_t consistency{ 0u };
-	// size_t size{ m_records.size( ) };
-	// 
-	// // add up records the player didn't lag.
-	// for( size_t i{ 0u }; i < size; i++ ) {
-	//     if( m_records[ i ].get( )->m_lag < 1 )
-	//         ++consistency;
-	// }
-	// 
-	// // compute lag consistency scale.
-	// float scale = ( float )consistency / size;
-	// 
-	// // lagged too much.
-	// bool fake = !bot && scale < 0.5f;
 
 	bool fake = !bot && g_menu.main.aimbot.correct.get();
+	record->m_feet_yaw = state->m_goal_feet_yaw;
 
 	// if using fake angles, correct angles.
-	if (fake)
+	if (fake) {
 		g_resolver.ResolveAngles(m_player, record);
+	}
 
 	// set stuff before animating.
 	m_player->m_vecOrigin() = record->m_origin;
@@ -269,6 +248,8 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 	m_player->m_bClientSideAnimation() = true;
 	m_player->UpdateClientSideAnimation();
 	m_player->m_bClientSideAnimation() = false;
+
+	state->m_goal_feet_yaw = record->m_feet_yaw;
 
 	// correct poses if fake angles.
 	if (fake)
@@ -296,6 +277,7 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 	g_csgo.m_globals->m_curtime = curtime;
 	g_csgo.m_globals->m_frametime = frametime;
 }
+
 
 void AimPlayer::OnNetUpdate(Player* player) {
 	bool reset = (!g_menu.main.aimbot.enable.get() || player->m_lifeState() == LIFE_DEAD || !player->enemy(g_cl.m_local));

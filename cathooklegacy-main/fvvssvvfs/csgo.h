@@ -106,6 +106,11 @@ public:
 	ConVar *mp_teammates_are_enemies;
 	ConVar *weapon_debug_spread_show;
 	ConVar *net_showfragments;
+	ConVar* sv_max_usercmd_future_ticks;
+	ConVar* sv_minupdaterate;
+	ConVar* sv_maxupdaterate;
+	ConVar* sv_client_min_interp_ratio;
+	ConVar* sv_client_max_interp_ratio;
 	ConVar *molotov_throw_detonate_time;
 	ConVar *weapon_molotov_maxdetonateslope;
 	ConVar *weapon_recoil_scale;
