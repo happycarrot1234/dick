@@ -200,7 +200,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\Desktop\paster folder\cobalt\hitsounds.h" />
     <ClInclude Include="address.h" />
     <ClInclude Include="aimbot.h" />
     <ClInclude Include="angle.h" />
@@ -239,6 +238,7 @@
     <ClInclude Include="grenades.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="hash.h" />
+    <ClInclude Include="hitsounds.h" />
     <ClInclude Include="hooks.h" />
     <ClInclude Include="hud.h" />
     <ClInclude Include="hvh.h" />

@@ -315,7 +315,7 @@
     <ClInclude Include="gh.h">
       <Filter>Header Files\menu</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Desktop\paster folder\cobalt\hitsounds.h">
+    <ClInclude Include="hitsounds.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

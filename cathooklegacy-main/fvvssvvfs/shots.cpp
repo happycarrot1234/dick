@@ -415,12 +415,14 @@ void Shots::OnHurt(IGameEvent* evt) {
 			PlaySoundA(reinterpret_cast<const char*>(cod), nullptr, SND_MEMORY | SND_ASYNC); break;
 		case 4:
 			PlaySoundA(reinterpret_cast<const char*>(primordial), nullptr, SND_MEMORY | SND_ASYNC); break;
+		case 5:
+			PlaySoundA(reinterpret_cast<const char*>(ding), nullptr, SND_MEMORY | SND_ASYNC); break;
 		}
 	}
 
 	// print this shit.
 	if (g_menu.main.misc.notifications.get(1)) {
-		std::string out = tfm::format(XOR("Shot: %s | Hitbox %s | Damage: %i \n"), name, m_groups[group], (int)damage);
+		std::string out = tfm::format(XOR("Shot ent: %s | Hitbox %s | Damage: %i \n"), name, m_groups[group], (int)damage);
 		g_notify.add(out);
 		didhiti = true;
 	}

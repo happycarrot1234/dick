@@ -2688,7 +2688,7 @@ public:
 		clantag.setup(XOR("clantag"), XOR("clantag"));
 		RegisterElement(&clantag, 1);
 
-		hitsounds.setup(XOR("hitsounds"), XOR("hitsounds"), { XOR("off"), XOR("arena switch"), XOR("money"), XOR("cod"), XOR("primordial") });
+		hitsounds.setup(XOR("hitsounds"), XOR("hitsounds"), { XOR("off"), XOR("arena switch"), XOR("money"), XOR("cod"), XOR("primordial"), XOR("M1 garand")});
 		RegisterElement(&hitsounds, 1);
 
 		slide_walk.setup(XOR("slide walk"), XOR("slide_walk"));
