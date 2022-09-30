@@ -74,6 +74,121 @@ void Aimbot::DoubleTap()
 	}
 }
 
+void FixVelocity(Player* m_player, LagRecord* record, LagRecord* previous, float max_speed) {
+	if (!previous) {
+		if (record->m_layers[6].m_playback_rate > 0.0f && record->m_layers[6].m_weight != 0.f && record->m_velocity.length() > 0.1f) {
+			auto v30 = max_speed;
+
+			if (record->m_flags & 6)
+				v30 *= 0.34f;
+			else if (m_player->m_bIsWalking())
+				v30 *= 0.52f;
+
+			auto v35 = record->m_layers[6].m_weight * v30;
+			record->m_velocity *= v35 / record->m_velocity.length();
+		}
+		else
+			record->m_velocity.clear();
+
+		if (record->m_flags & 1)
+			record->m_velocity.z = 0.f;
+
+		record->m_anim_velocity = record->m_velocity;
+		return;
+	}
+
+	if ((m_player->m_fEffects() & 8) != 0
+		|| m_player->m_ubEFNoInterpParity() != m_player->m_ubEFNoInterpParityOld()) {
+		record->m_velocity.clear();
+		record->m_anim_velocity.clear();
+		return;
+	}
+
+	auto is_jumping = !(record->m_flags & FL_ONGROUND && previous->m_flags & FL_ONGROUND);
+
+	if (record->m_lag > 1) {
+		record->m_velocity.clear();
+		auto origin_delta = (record->m_origin - previous->m_origin);
+
+		if (!(previous->m_flags & FL_ONGROUND || record->m_flags & FL_ONGROUND))// if not previous on ground or on ground
+		{
+			auto currently_ducking = record->m_flags & FL_DUCKING;
+			if ((previous->m_flags & FL_DUCKING) != currently_ducking) {
+				float duck_modifier = 0.f;
+
+				if (currently_ducking)
+					duck_modifier = 9.f;
+				else
+					duck_modifier = -9.f;
+
+				origin_delta.z -= duck_modifier;
+			}
+		}
+
+		auto sqrt_delta = origin_delta.length_2d_sqr();
+
+		if (sqrt_delta > 0.f && sqrt_delta < 1000000.f)
+			record->m_velocity = origin_delta / game::TICKS_TO_TIME(record->m_lag);
+
+		record->m_velocity.validate_vec();
+
+		if (is_jumping) {
+			if (record->m_flags & FL_ONGROUND && !g_csgo.sv_enablebunnyhopping->GetInt()) {
+
+				// 260 x 1.1 = 286 units/s.
+				float max = m_player->m_flMaxspeed() * 1.1f;
+
+				// get current velocity.
+				float speed = record->m_velocity.length();
+
+				// reset velocity to 286 units/s.
+				if (max > 0.f && speed > max)
+					record->m_velocity *= (max / speed);
+			}
+
+			// assume the player is bunnyhopping here so set the upwards impulse.
+			record->m_velocity.z = g_csgo.sv_jump_impulse->GetFloat();
+		}
+		// we are not on the ground
+		// apply gravity and airaccel.
+		else if (!(record->m_flags & FL_ONGROUND)) {
+			// apply one tick of gravity.
+			record->m_velocity.z -= g_csgo.sv_gravity->GetFloat() * g_csgo.m_globals->m_interval;
+		}
+	}
+
+	record->m_anim_velocity = record->m_velocity;
+
+	if (!record->m_fake_walk) {
+		if (record->m_anim_velocity.length_2d() > 0 && (record->m_flags & FL_ONGROUND)) {
+			float anim_speed = 0.f;
+
+			if (!is_jumping
+				&& record->m_layers[11].m_weight > 0.0f
+				&& record->m_layers[11].m_weight < 1.0f
+				&& record->m_layers[11].m_playback_rate == previous->m_layers[11].m_playback_rate) {
+				// calculate animation speed yielded by anim overlays
+				auto flAnimModifier = 0.35f * (1.0f - record->m_layers[11].m_weight);
+				if (flAnimModifier > 0.0f && flAnimModifier < 1.0f)
+					anim_speed = max_speed * (flAnimModifier + 0.55f);
+			}
+
+			// this velocity is valid ONLY IN ANIMFIX UPDATE TICK!!!
+			// so don't store it to record as m_vecVelocity
+			// -L3D451R7
+			if (anim_speed > 0.0f) {
+				anim_speed /= record->m_anim_velocity.length_2d();
+				record->m_anim_velocity.x *= anim_speed;
+				record->m_anim_velocity.y *= anim_speed;
+			}
+		}
+	}
+	else
+		record->m_anim_velocity.clear();
+
+	record->m_anim_velocity.validate_vec();
+}
+
 void AimPlayer::UpdateAnimations(LagRecord* record) {
 	CCSGOPlayerAnimState* state = m_player->m_PlayerAnimState();
 	if (!state)
@@ -88,14 +203,14 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 		m_spawn = m_player->m_flSpawnTime();
 	}
 
-	// backup curtime.
-	float curtime = g_csgo.m_globals->m_curtime;
-	float frametime = g_csgo.m_globals->m_frametime;
-
-	// set curtime to animtime.
-	// set frametime to ipt just like on the server during simulation.
-	g_csgo.m_globals->m_curtime = record->m_anim_time;
-	g_csgo.m_globals->m_frametime = g_csgo.m_globals->m_interval;
+	// first off lets backup our globals.
+	auto curtime = g_csgo.m_globals->m_curtime;
+	auto realtime = g_csgo.m_globals->m_realtime;
+	auto frametime = g_csgo.m_globals->m_frametime;
+	auto absframetime = g_csgo.m_globals->m_abs_frametime;
+	auto framecount = g_csgo.m_globals->m_frame;
+	auto tickcount = g_csgo.m_globals->m_tick_count;
+	auto interpolation = g_csgo.m_globals->m_interp_amt;
 
 	// backup stuff that we do not want to fuck with.
 	AnimationBackup_t backup;
@@ -110,47 +225,87 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 	backup.m_body = m_player->m_flLowerBodyYawTarget();
 	m_player->GetAnimLayers(backup.m_layers);
 
+	LagRecord* previous = m_records.size() > 1 ? m_records[1].get() : nullptr;
+
+	if (previous && (previous->dormant() || !previous->m_setup))
+		previous = nullptr;
+
+	// set globals.
+	g_csgo.m_globals->m_curtime = record->m_anim_time;
+	g_csgo.m_globals->m_realtime = record->m_anim_time;
+	g_csgo.m_globals->m_frame = game::TIME_TO_TICKS(record->m_anim_time);
+	g_csgo.m_globals->m_tick_count = game::TIME_TO_TICKS(record->m_anim_time);
+	g_csgo.m_globals->m_frametime = g_csgo.m_globals->m_interval;
+	g_csgo.m_globals->m_abs_frametime = g_csgo.m_globals->m_interval;
+	g_csgo.m_globals->m_interp_amt = 0.f;
+
 	// is player a bot?
 	bool bot = game::IsFakePlayer(m_player->index());
-
-	// reset fakewalk state.
-	record->m_fake_walk = false;
+	// reset resolver/fakewalk/fakeflick state.
 	record->m_mode = Resolver::Modes::RESOLVE_NONE;
+	record->m_fake_walk = false;
+	record->m_fake_flick = false;
 
-	// fix velocity.
-	// https://github.com/VSES/SourceEngine2007/blob/master/se2007/game/client/c_baseplayer.cpp#L659
-	if (record->m_lag > 0 && record->m_lag < 16 && m_records.size() >= 2) {
-		// get pointer to previous record.
-		LagRecord* previous = m_records[1].get();
-
-		if (previous && !previous->dormant())
-			record->m_velocity = (record->m_origin - previous->m_origin) * (1.f / game::TICKS_TO_TIME(record->m_lag));
+	// thanks llama.
+	if (record->m_flags & FL_ONGROUND) {
+		// they are on ground.
+		state->m_ground = true;
+		// no they didnt land.
+		state->m_land = false;
 	}
 
-	// fix gravity.
-	if (!(record->m_flags & FL_ONGROUND))
-		record->m_velocity.z -= g_csgo.sv_gravity->GetFloat() * g_csgo.m_globals->m_interval;
+	// fix velocity.
+	float max_speed = 260.f;
+	if (record->m_lag > 0 && record->m_lag < 16 && m_records.size() >= 2) {
+		FixVelocity(m_player, record, previous, max_speed);
+	}
+
+	// fix CGameMovement::FinishGravity
+	if (!(m_player->m_fFlags() & FL_ONGROUND))
+		record->m_velocity.z -= game::TICKS_TO_TIME(g_csgo.sv_gravity->GetFloat());
 	else
 		record->m_velocity.z = 0.0f;
 
 	// set this fucker, it will get overriden.
 	record->m_anim_velocity = record->m_velocity;
 
-	// fix various issues with the game
+	// fix various issues with the game.
 	// these issues can only occur when a player is choking data.
 	if (record->m_lag > 1 && !bot) {
 
-		// detect fakewalk.
-		float speed = record->m_velocity.length();
-		if (record->m_flags & FL_ONGROUND
-			&& record->m_layers[4].m_weight == 0.0f
-			&& record->m_layers[5].m_weight == 0.0f
+		auto speed = record->m_velocity.length();
+
+
+		// detect fakewalking players
+		if (speed > 1.f
+			&& record->m_lag >= 12
+			&& record->m_layers[12].m_weight == 0.0f
+			&& record->m_layers[6].m_weight == 0.0f
 			&& record->m_layers[6].m_playback_rate < 0.0001f
-			&& record->m_anim_velocity.length_2d() > 0.f && record->m_lag > 7)
+			&& (record->m_flags & FL_ONGROUND))
 			record->m_fake_walk = true;
 
+		// if they fakewalk scratch this shit.
 		if (record->m_fake_walk)
 			record->m_anim_velocity = record->m_velocity = { 0.f, 0.f, 0.f };
+
+		// detect fakeflicking players
+		//if (record->m_velocity.length() < 18.f
+		//	&& record->m_layers[6].m_weight != 1.0f
+		//	&& record->m_layers[6].m_weight != 0.0f
+		//	&& record->m_layers[6].m_weight != m_records.front().get()->m_layers[6].m_weight
+		//	&& (record->m_flags & FL_ONGROUND))
+		//	record->m_fake_flick = true;
+
+		// detect fakeflicking players
+		if (record->m_velocity.length() < 0.1f != record->m_velocity.length() > 38.0f) { // check
+			if (record->m_velocity.length() < 0.1f
+				&& record->m_layers[6].m_weight != 1.0f
+				&& record->m_layers[6].m_weight != 0.0f
+				&& record->m_layers[6].m_weight != previous->m_layers[6].m_weight // correct weight??
+				&& (record->m_flags & FL_ONGROUND))
+				record->m_fake_flick = true;
+		}
 
 		// we need atleast 2 updates/records
 		// to fix these issues.
@@ -158,9 +313,10 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 			// get pointer to previous record.
 			LagRecord* previous = m_records[1].get();
 
+			// valid previous record.
 			if (previous && !previous->dormant()) {
 				// LOL.
-				if ((record->m_origin - previous->m_origin).IsZero())
+				if ((record->m_origin - previous->m_origin).is_zero())
 					record->m_anim_velocity = record->m_velocity = { 0.f, 0.f, 0.f };
 
 				// jumpfall.
@@ -204,38 +360,39 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 				// fix crouching players.
 				m_player->m_flDuckAmount() = previous->m_duck + change;
 
-				if (!record->m_fake_walk) {
-					// fix the velocity till the moment of animation.
-					vec3_t velo = record->m_velocity - previous->m_velocity;
+				//if (!record->m_fake_walk) {
+				//	// fix the velocity till the moment of animation.
+				//	vec3_t velo = record->m_velocity - previous->m_velocity;
 
-					// accel per tick.
-					vec3_t accel = (velo / time) * g_csgo.m_globals->m_interval;
+				//	// accel per tick.
+				//	vec3_t accel = (velo / time) * g_csgo.m_globals->m_interval;
 
-					// set the anim velocity to the previous velocity.
-					// and predict one tick ahead.
-					record->m_anim_velocity = previous->m_velocity + accel;
-				}
+				//	// set the anim velocity to the previous velocity.
+				//	// and predict one tick ahead.
+				//	record->m_anim_velocity = previous->m_velocity + accel;
+				//}
 			}
 		}
 	}
 
+	// lol?
+	for (int i = 0; i < 13; i++)
+		m_player->m_AnimOverlay()[i].m_1owner = m_player;
 
-	bool fake = !bot && g_menu.main.aimbot.correct.get();
-	record->m_feet_yaw = state->m_goal_feet_yaw;
+
+	bool fake = g_menu.main.aimbot.correct.get() && !bot;
 
 	// if using fake angles, correct angles.
-	if (fake) {
+	if (fake)
 		g_resolver.ResolveAngles(m_player, record);
-	}
+
+	// force to use correct abs origin and velocity ( no CalcAbsolutePosition and CalcAbsoluteVelocity calls )
+	m_player->m_iEFlags() &= ~(EFL_DIRTY_ABSTRANSFORM | EFL_DIRTY_ABSVELOCITY);
 
 	// set stuff before animating.
 	m_player->m_vecOrigin() = record->m_origin;
 	m_player->m_vecVelocity() = m_player->m_vecAbsVelocity() = record->m_anim_velocity;
 	m_player->m_flLowerBodyYawTarget() = record->m_body;
-
-	// EFL_DIRTY_ABSVELOCITY
-	// skip call to C_BaseEntity::CalcAbsoluteVelocity
-	m_player->m_iEFlags() &= ~0x1000;
 
 	// write potentially resolved angles.
 	m_player->m_angEyeAngles() = record->m_eye_angles;
@@ -244,16 +401,31 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 	if (state->m_frame == g_csgo.m_globals->m_frame)
 		state->m_frame -= 1;
 
-	// 'm_animating' returns true if being called from SetupVelocity, passes raw velocity to animstate.
+	// get invalidated bone cache.
+	static auto& invalidatebonecache = pattern::find(g_csgo.m_client_dll, XOR("C6 05 ? ? ? ? ? 89 47 70")).add(0x2);
+
+	// make sure we keep track of the original invalidation state
+	const auto oldbonecache = invalidatebonecache;
+
+	// update animtions now.
 	m_player->m_bClientSideAnimation() = true;
 	m_player->UpdateClientSideAnimation();
 	m_player->m_bClientSideAnimation() = false;
 
-	state->m_goal_feet_yaw = record->m_feet_yaw;
+	// we don't want to enable cache invalidation by accident
+	invalidatebonecache = oldbonecache;
 
-	// correct poses if fake angles.
-	if (fake)
+	// player animations have updated.
+	m_player->InvalidatePhysicsRecursive(InvalidatePhysicsBits_t::ANGLES_CHANGED);
+	m_player->InvalidatePhysicsRecursive(InvalidatePhysicsBits_t::ANIMATION_CHANGED);
+	m_player->InvalidatePhysicsRecursive(InvalidatePhysicsBits_t::BOUNDS_CHANGED);
+	m_player->InvalidatePhysicsRecursive(InvalidatePhysicsBits_t::SEQUENCE_CHANGED);
+
+	// if fake angles.
+	if (fake) {
+		// correct poses.
 		g_resolver.ResolvePoses(m_player, record);
+	}
 
 	// store updated/animated poses and rotation in lagrecord.
 	m_player->GetPoseParameters(record->m_poses);
@@ -270,12 +442,17 @@ void AimPlayer::UpdateAnimations(LagRecord* record) {
 	m_player->SetAbsOrigin(backup.m_abs_origin);
 	m_player->SetAnimLayers(backup.m_layers);
 
-	// IMPORTANT: do not restore poses here, since we want to preserve them for rendering.
-	// also dont restore the render angles which indicate the model rotation.
-
 	// restore globals.
 	g_csgo.m_globals->m_curtime = curtime;
+	g_csgo.m_globals->m_realtime = realtime;
 	g_csgo.m_globals->m_frametime = frametime;
+	g_csgo.m_globals->m_abs_frametime = absframetime;
+	g_csgo.m_globals->m_frame = framecount;
+	g_csgo.m_globals->m_tick_count = tickcount;
+	g_csgo.m_globals->m_interp_amt = interpolation;
+
+	// IMPORTANT: do not restore poses here, since we want to preserve them for rendering.
+	// also dont restore the render angles which indicate the model rotation.
 }
 
 
@@ -1240,7 +1417,10 @@ void Aimbot::think() {
 	apply();
 }
 
-void Aimbot::find() {
+void Aimbot::find() 
+{
+	std::cout << "aimbot find called\n";
+
 	struct BestTarget_t { Player* player; vec3_t pos; float damage; LagRecord* record; };
 
 	vec3_t       tmp_pos;
@@ -1381,6 +1561,7 @@ void Aimbot::find() {
 				g_cl.m_cmd->m_buttons |= IN_ATTACK;
 		}
 	}
+	std::cout << "aimbot cant find anything\n";
 }
 
 bool Aimbot::CanHit(vec3_t start, vec3_t end, LagRecord* record, int box, studiohdr_t* hdr)

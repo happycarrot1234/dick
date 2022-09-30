@@ -23,9 +23,7 @@ public:
 	bool OverridePlayer(int index);
 	bool GenerateLerpedMatrix(int index, BoneArray* out);
 	void RenderHistoryChams(int index);
-	void RenderFake();
 	bool DrawModel(uintptr_t ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone);
-	void DrawChams(void* ecx, uintptr_t ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone);
 	void SceneEnd();
 
 	void RenderPlayer(Player* player);
@@ -34,15 +32,7 @@ public:
 public:
 	std::vector< Player* > m_players;
 	bool m_running;
-	IMaterial* debugambientcube;
-	IMaterial* debugdrawflat;
-	IMaterial* materialMetall;
-	IMaterial* materialMetall2;
-	IMaterial* materialMetall3;
-	IMaterial* materialMetallnZ;
-	IMaterial* skeet;
-	IMaterial* onetap;
-	IMaterial* yeti;
+	std::vector< IMaterial* > m_materials;
 };
 
 extern Chams g_chams;

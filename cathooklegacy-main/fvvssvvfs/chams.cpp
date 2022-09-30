@@ -3,26 +3,8 @@
 Chams g_chams{ };;
 
 Chams::model_type_t Chams::GetModelType(const ModelRenderInfo_t& info) {
-	// model name.
-	//const char* mdl = info.m_model->m_name;
 
 	std::string mdl{ info.m_model->m_name };
-
-	//static auto int_from_chars = [ mdl ]( size_t index ) {
-	//	return *( int* )( mdl + index );
-	//};
-
-	// little endian.
-	//if( int_from_chars( 7 ) == 'paew' ) { // weap
-	//	if( int_from_chars( 15 ) == 'om_v' && int_from_chars( 19 ) == 'sled' )
-	//		return model_type_t::arms;
-	//
-	//	if( mdl[ 15 ] == 'v' )
-	//		return model_type_t::view_weapon;
-	//}
-
-	//else if( int_from_chars( 7 ) == 'yalp' ) // play
-	//	return model_type_t::player;
 
 	if (mdl.find(XOR("player")) != std::string::npos && info.m_index >= 1 && info.m_index <= 64)
 		return model_type_t::player;
@@ -41,9 +23,14 @@ bool Chams::IsInViewPlane(const vec3_t& world) {
 }
 
 void Chams::SetColor(Color col, IMaterial* mat) {
-	if (mat)
+
+	if (mat) {
 		mat->ColorModulate(col);
 
+		auto pVar = mat->find_var("$envmaptint");
+		if (pVar)
+			(*(void(__thiscall**)(int, float, float, float))(*(DWORD*)pVar + 44))((uintptr_t)pVar, col.r() / 255.f, col.g() / 255.f, col.b() / 255.f);
+	}
 	else
 		g_csgo.m_render_view->SetColorModulation(col);
 }
@@ -57,7 +44,7 @@ void Chams::SetAlpha(float alpha, IMaterial* mat) {
 }
 
 void Chams::SetupMaterial(IMaterial* mat, Color col, bool z_flag) {
-	SetColor(col);
+	SetColor(col, mat);
 
 	// mat->SetFlag( MATERIAL_VAR_HALFLAMBERT, flags );
 	mat->SetFlag(MATERIAL_VAR_ZNEARER, z_flag);
@@ -68,152 +55,60 @@ void Chams::SetupMaterial(IMaterial* mat, Color col, bool z_flag) {
 }
 
 void Chams::init() {
-	std::ofstream("csgo\\materials\\simple_flat.vmt") << R"#("UnlitGeneric"
-{
-  "$basetexture" "vgui/white_additive"
-  "$ignorez"      "1"
-  "$envmap"       ""
-  "$nofog"        "1"
-  "$model"        "1"
-  "$nocull"       "0"
-  "$selfillum"    "1"
-  "$halflambert"  "1"
-  "$znearer"      "0"
-  "$flat"         "1"
-}
-)#";
-	std::ofstream("csgo\\materials\\simple_ignorez_reflective.vmt") << R"#("VertexLitGeneric"
-{
 
-  "$basetexture" "vgui/white_additive"
-  "$ignorez"      "1"
-  "$envmap"       "env_cubemap"
-  "$normalmapalphaenvmapmask"  "1"
-  "$envmapcontrast"             "1"
-  "$nofog"        "1"
-  "$model"        "1"
-  "$nocull"       "0"
-  "$selfillum"    "1"
-  "$halflambert"  "1"
-  "$znearer"      "0"
-  "$flat"         "1"
-}
-)#";
-
-	std::ofstream("csgo\\materials\\simple_regular_reflective.vmt") << R"#("VertexLitGeneric"
-{
-
-  "$basetexture" "vgui/white_additive"
-  "$ignorez"      "0"
-  "$envmap"       "env_cubemap"
-  "$normalmapalphaenvmapmask"  "1"
-  "$envmapcontrast"             "1"
-  "$nofog"        "1"
-  "$model"        "1"
-  "$nocull"       "0"
-  "$selfillum"    "1"
-  "$halflambert"  "1"
-  "$znearer"      "0"
-  "$flat"         "1"
-}
-)#";
-
-	std::ofstream("csgo/materials/skeetchams.vmt") << R"#("VertexLitGeneric"
-{
-	  "$basetexture" "vgui/white_additive"
-	  "$ignorez" "0"
-	  "$additive" "0"
-	  "$envmap"  "models/effects/cube_white"
-	  "$normalmapalphaenvmapmask" "1"
-	  "$envmaptint" "[0.25 0.4 0.88]"
-	  "$envmapfresnel" "1"
-	  "$envmapfresnelminmaxexp" "[0 1 2]"
-
-	  "$envmapcontrast" "1"
-	  "$nofog" "1"
-	  "$model" "1"
-	  "$nocull" "0"
-	  "$selfillum" "1"
-	  "$halflambert" "1"
-	  "$znearer" "0"
-	  "$flat" "1"
-}
-)#";
-
-	std::ofstream("csgo/materials/onetap_overlay.vmt") << R"#(" VertexLitGeneric "{
-
-			"$additive" "1"
-	        "$envmap"  "models/effects/cube_white"
-			"$envmaptint" "[0 0 0]"
-			"$envmapfresnel" "1"
-			"$envmapfresnelminmaxexp" "[0 16 12]"
-			"$alpha" "0.8"
-})#";
-
-	std::ofstream("csgo/materials/glowOverlay.vmt") << R"#("VertexLitGeneric" {
-				"$additive" "1"
-				"$envmap" "models/effects/cube_white"
-				"$envmaptint" "[0 0.1 0.2]"
-				"$envmapfresnel" "1"
-				"$envmapfresnelminmaxexp" "[0 1 2]"
-				"$ignorez" "1"
-				"$alpha" "1"
-			})#";
-
-	std::ofstream("csgo/materials/testnigger.vmt") << R"#("VertexLitGeneric" { 
-
-  "$basetexture" "vgui/white_additive"
-  "$ignorez"      "1"
-  "$envmap"       "env_cubemap"
-  "$envmaptint"   "[0.6 0.6 0.6]"
-  "$nofog"        "1"
-  "$model"        "1"
-  "$nocull"       "0"
-  "$selfillum"    "1"
-  "$halflambert"  "1"
-  "$znearer"      "0"
-  "$flat"         "1"
+	std::ofstream("csgo/materials/promethea_glowoverlay.vmt") << R"#("VertexLitGeneric" 
+		{
+		"$additive" "1"
+		"$envmap" "models/effects/cube_white"
+		"$envmaptint" "[1 1 1]"
+		"$envmapfresnel" "1"
+		"$envmapfresnelminmaxexp" "[0 1 2]"
+		"$alpha" "1"
 	})#";
 
-	std::ofstream("csgo\\materials\\yeti_flat.vmt") << R"#("UnlitGeneric"
-{
-  "$basetexture" "vgui/white_additive"
-  "$ignorez"      "0"
-  "$envmap"       ""
-  "$nofog"        "1"
-  "$model"        "1"
-  "$nocull"       "0"
-  "$selfillum"    "1"
-  "$halflambert"  "1"
-  "$znearer"      "0"
-  "$flat"         "1"
-}
-)#";
+	std::ofstream("csgo\\materials\\promethea_metallic.vmt") << R"#("VertexLitGeneric" 
+	{
+		"$basetexture" "vgui/white_additive"
+		"$ignorez"      "1"
+		"$envmap"       "env_cubemap"
+		"$normalmapalphaenvmapmask"  "1"
+		"$envmapcontrast"             "1"
+		"$nofog"        "1"
+		"$model"        "1"
+		"$nocull"       "0"
+		"$selfillum"    "1"
+		"$halflambert"  "1"
+		"$znearer"      "0"
+		"$flat"         "1"
+		})#";
 
-	materialMetall = g_csgo.m_material_system->FindMaterial("simple_ignorez_reflective", "Model textures");
-	materialMetall->IncrementReferenceCount();
-
-	materialMetallnZ = g_csgo.m_material_system->FindMaterial("simple_regular_reflective", "Model textures");
-	materialMetallnZ->IncrementReferenceCount();
+	std::ofstream("csgo\\materials\\promethea_shaded.vmt") << R"#("VertexLitGeneric" 
+	{
+		"$basetexture"               "vgui/white_additive"
+		"$bumpmap"                   "effects\flat_normal"
+		"$phong"                     "1"
+		"$phongexponent"             "16"
+		"$phongboost"                "16"
+		"$phongfresnelranges"        "[8 12 16]"
+		"$phongtint"                 "[255 0 0]"
+		"$selfillum"                 "1"
+		"$halflambert"               "1"
+		"$znearer"                   "0"
+		"$nocull"                    "1"
+		"$reflectivity"              "[1 1 1]"
+	})#";
 
 	// find stupid materials.
-	debugambientcube = g_csgo.m_material_system->FindMaterial(XOR("debug/debugambientcube"), XOR("Model textures"));
-	debugambientcube->IncrementReferenceCount();
+	m_materials.push_back(g_csgo.m_material_system->FindMaterial(XOR("debug/debugambientcube"), XOR("Model textures")));
+	m_materials.push_back(g_csgo.m_material_system->FindMaterial(XOR("debug/debugdrawflat"), XOR("Model textures")));
+	m_materials.push_back(g_csgo.m_material_system->FindMaterial(XOR("promethea_metallic"), XOR("Model textures")));
+	m_materials.push_back(g_csgo.m_material_system->FindMaterial(XOR("promethea_shaded"), XOR("Model textures")));
+	m_materials.push_back(g_csgo.m_material_system->FindMaterial(XOR("promethea_glowoverlay"), nullptr));
+	m_materials.push_back(g_csgo.m_material_system->FindMaterial(XOR("dev/glow_armsrace"), XOR("Model textures")));
 
-	debugdrawflat = g_csgo.m_material_system->FindMaterial(XOR("debug/debugdrawflat"), XOR("Model textures"));
-	debugdrawflat->IncrementReferenceCount();
-
-	materialMetall3 = g_csgo.m_material_system->FindMaterial(XOR("testnigger"), XOR("Model textures"));
-	materialMetall3->IncrementReferenceCount();
-
-	skeet = g_csgo.m_material_system->FindMaterial(XOR("skeetchams"), XOR("Model textures"));
-	skeet->IncrementReferenceCount();
-
-	onetap = g_csgo.m_material_system->FindMaterial(XOR("onetap_overlay"), XOR("Model textures"));
-	onetap->IncrementReferenceCount();
-
-	yeti = g_csgo.m_material_system->FindMaterial(XOR("yeti_flat.vmt"), XOR("Model textures"));
-	yeti->IncrementReferenceCount();
+	for (int i = 0; i < m_materials.size(); i++) {
+		m_materials[i]->IncrementReferenceCount();
+	}
 }
 
 bool Chams::OverridePlayer(int index) {
@@ -226,7 +121,7 @@ bool Chams::OverridePlayer(int index) {
 	// the static props are drawn after the players and it looks like aids.
 	// therefore always process the local player in scene end.
 	if (player->m_bIsLocalPlayer())
-		return true;
+		return false;
 
 	// see if this player is an enemy to us.
 	bool enemy = g_cl.m_local && player->enemy(g_cl.m_local);
@@ -241,6 +136,7 @@ bool Chams::OverridePlayer(int index) {
 
 	return false;
 }
+
 
 bool Chams::GenerateLerpedMatrix(int index, BoneArray* out) {
 	LagRecord* current_record;
@@ -269,6 +165,8 @@ bool Chams::GenerateLerpedMatrix(int index, BoneArray* out) {
 	if (sv_maxunlag) {
 		max_unlag = sv_maxunlag->GetFloat();
 	}
+
+	// CHANGE TO AROUND 500-1k IF ISSUES COME UP
 
 	for (auto it = data->m_records.rbegin(); it != data->m_records.rend(); it++) {
 		current_record = it->get();
@@ -333,18 +231,18 @@ void Chams::RenderHistoryChams(int index) {
 	bool enemy = g_cl.m_local && player->enemy(g_cl.m_local);
 	if (enemy) {
 		data = &g_aimbot.m_players[index - 1];
-		//if (!data || data->m_records.empty())
-			//return;
+		if (!data)
+			return;
 
-		//record = g_resolver.FindLastRecord(data);
-		//if (!record)
-		//	return;
+		record = g_resolver.FindLastRecord(data);
+		if (!record)
+			return;
 
 		// override blend.
 		SetAlpha(g_menu.main.players.chams_enemy_history_blend.get() / 100.f);
 
 		// set material and color.
-		SetupMaterial(debugdrawflat, g_menu.main.players.chams_enemy_history_col.get(), true);
+		SetupMaterial(m_materials[g_menu.main.players.chams_enemy_history_mat.get()], g_menu.main.players.chams_enemy_history_col.get(), true);
 
 		// was the matrix properly setup?
 		BoneArray arr[128];
@@ -381,78 +279,18 @@ bool Chams::DrawModel(uintptr_t ctx, const DrawModelState_t& state, const ModelR
 	return true;
 }
 
-
 void Chams::SceneEnd() {
 	// store and sort ents by distance.
 	if (SortPlayers()) {
 		// iterate each player and render them.
-		for (const auto& p : m_players) {
+		for (const auto& p : m_players)
 			RenderPlayer(p);
-		}
-		RenderFake();
 	}
 
 	// restore.
 	g_csgo.m_studio_render->ForcedMaterialOverride(nullptr);
 	g_csgo.m_render_view->SetColorModulation(colors::white);
 	g_csgo.m_render_view->SetBlend(1.f);
-}
-
-void Chams::RenderFake() {
-	if (g_menu.main.antiaim.draw_angles_chams.get()) { // check if active
-		if (g_cl.m_local) {
-			//g_csgo.m_render_view->SetBlend(g_menu.main.antiaim.draw_angles_chams_blend.get() / 100.f);
-			SetAlpha(g_menu.main.antiaim.draw_angles_chams_blend.get() / 100.f);
-			SetupMaterial(debugdrawflat, g_menu.main.antiaim.color_draw_angles_chams.get(), false);
-			ang_t fake1337(0, g_cl.m_radar.y, 0);
-			g_cl.m_local->SetAbsAngles(fake1337);
-			g_cl.m_local->DrawModel();
-		}
-	}
-}
-
-void Chams::DrawChams(void* ecx, uintptr_t ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone) {
-	Player* m_entity = g_csgo.m_entlist->GetClientEntity<Player*>(info.m_index);
-
-	// or crash >_< and prevents dead bodies from being colored
-	if (!m_entity || m_entity->m_iHealth() < 1)
-		return;
-	
-	// we always draw the local player manually in drawmodel.
-	if (m_entity->m_bIsLocalPlayer())
-	{
-		if (g_menu.main.players.chams_local_scope.get() && m_entity->m_bIsScoped())
-			SetAlpha(0.5f);
-
-		else if (g_menu.main.players.chams_local.get())
-		{
-
-			// orig mdl
-			if (m_entity->m_bIsLocalPlayer())
-			{
-				g_hooks.m_model_render.GetOldMethod< Hooks::DrawModelExecute_t >(IVModelRender::DRAWMODELEXECUTE)(ecx, ctx, state, info, bone);
-			}
-
-			// x ray, this btw overrides everything
-			if (m_entity->m_bIsLocalPlayer())
-			{
-				// override blend.
-				SetAlpha(g_menu.main.players.chams_local_col.get() / 100.f);
-
-				// TODO separation
-				SetupMaterial(yeti, g_menu.main.players.chams_local_col.get(), false);
-				g_hooks.m_model_render.GetOldMethod< Hooks::DrawModelExecute_t >(IVModelRender::DRAWMODELEXECUTE)(ecx, ctx, state, info, bone);
-			}
-
-			// wire start
-			SetAlpha(g_menu.main.players.chams_local_blend.get() / 100.f);
-
-			SetupMaterial(debugambientcube, g_menu.main.players.chams_local_col.get(), false);
-
-			g_hooks.m_model_render.GetOldMethod< Hooks::DrawModelExecute_t >(IVModelRender::DRAWMODELEXECUTE)(ecx, ctx, state, info, bone);
-
-		}
-	}
 }
 
 void Chams::RenderPlayer(Player* player) {
@@ -467,36 +305,74 @@ void Chams::RenderPlayer(Player* player) {
 	// this is the local player.
 	// we always draw the local player manually in drawmodel.
 	if (player->m_bIsLocalPlayer()) {
-		if (g_menu.main.players.chams_local_scope.get() && player->m_bIsScoped())
-			SetAlpha(0.5f);
 
+		float scope_blend_percent = g_menu.main.players.chams_local_scope_blend.get() / 100.f;
+
+		if (g_menu.main.players.chams_local_scope.get() && player->m_bIsScoped()) {
+			SetAlpha((g_menu.main.players.chams_local_blend.get() / 100.f) * scope_blend_percent);
+		}
 		else if (g_menu.main.players.chams_local.get()) {
 			// override blend.
 			SetAlpha(g_menu.main.players.chams_local_blend.get() / 100.f);
 
 			// set material and color.
-			if (g_menu.main.visuals.chamstype.get() == 0) {
-				SetupMaterial(debugambientcube, g_menu.main.players.chams_local_col.get(), false);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 1) {
-				SetupMaterial(debugdrawflat, g_menu.main.players.chams_local_col.get(), false);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 2) {
-				SetupMaterial(materialMetall, g_menu.main.players.chams_local_col.get(), false);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 3) {
-				SetupMaterial(skeet, g_menu.main.players.chams_local_col.get(), false);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 4) {
-				SetupMaterial(onetap, g_menu.main.players.chams_local_col.get(), false);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 5) {
-				SetupMaterial(materialMetall3, g_menu.main.players.chams_local_col.get(), false);
-			}
+			if (g_menu.main.players.chams_local_mat.get() == 4)
+				SetupMaterial(m_materials[0], g_menu.main.players.chams_local_col.get(), false);
+			else
+				SetupMaterial(m_materials[g_menu.main.players.chams_local_mat.get()], g_menu.main.players.chams_local_col.get(), false);
 		}
+
+		Weapon* weapon = player->GetActiveWeapon();
+		if (!weapon)
+			return;
+
+		WeaponInfo* data = weapon->GetWpnData();
+		if (!data)
+			return;
+
+		// do not do this on: bomb, knife and nades.
+
+		if (g_menu.main.players.chams_local_mat.get() == 5) {
+			SetAlpha(0.f);
+		}
+
 		// manually draw the model.
+		//player->DrawModel();
 		player->DrawModel();
 	}
+	if (g_menu.main.players.chams_local_mat.get() == 4) {
+		if (player->m_bIsLocalPlayer()) {
+
+			if (g_menu.main.players.chams_local.get()) {
+				// override blend.
+				SetAlpha(g_menu.main.players.chams_local_blend.get() / 100.f);
+
+				// set material and color.
+				//SetupMaterial(m_materials[1], g_menu.main.players.chams_local_col.get(), false);
+
+				SetupMaterial(m_materials[4], g_menu.main.players.chams_local2_col.get(), false);
+			}
+
+			if (g_menu.main.players.chams_local_scope.get() && player->m_bIsScoped())
+				SetAlpha(g_menu.main.players.chams_local_scope_blend.get() / 100.f);
+
+			Weapon* weapon = player->GetActiveWeapon();
+			if (!weapon)
+				return;
+
+			WeaponInfo* data = weapon->GetWpnData();
+			if (!data)
+				return;
+
+			// do not do this on: bomb, knife and nades.
+			CSWeaponType type = data->m_weapon_type;
+
+			// manually draw the model.
+			//player->DrawModel();
+			player->DrawModel();
+		}
+	}
+
 	// check if is an enemy.
 	bool enemy = g_cl.m_local && player->enemy(g_cl.m_local);
 
@@ -505,102 +381,58 @@ void Chams::RenderPlayer(Player* player) {
 	}
 
 	if (enemy && g_menu.main.players.chams_enemy.get(0)) {
-		if (g_menu.main.players.chams_enemy.get(1)) {
+		if (g_menu.main.players.chams_enemy_mat.get() == 4) {
+			if (g_menu.main.players.chams_enemy.get(1)) {
+
+				SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+				SetupMaterial(m_materials[0], g_menu.main.players.chams_enemy_invis.get(), true);
+
+				player->DrawModel();
+
+				SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+				SetupMaterial(m_materials[4], g_menu.main.players.chams_enemy2_invis.get(), true);
+
+				player->DrawModel();
+			}
 
 			SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+			SetupMaterial(m_materials[0], g_menu.main.players.chams_enemy_vis.get(), false);
 
-			if (g_menu.main.visuals.chamstype.get() == 0) {
-				SetupMaterial(debugambientcube, g_menu.main.players.chams_enemy_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 1) {
-				SetupMaterial(debugdrawflat, g_menu.main.players.chams_enemy_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 2) {
-				SetupMaterial(materialMetallnZ, g_menu.main.players.chams_enemy_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 3) {
-				SetupMaterial(skeet, g_menu.main.players.chams_enemy_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 4) {
-				SetupMaterial(onetap, g_menu.main.players.chams_enemy_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 5) {
-				SetupMaterial(materialMetall3, g_menu.main.players.chams_enemy_invis.get(), true);
-			}
+			player->DrawModel();
+
+			SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+			SetupMaterial(m_materials[4], g_menu.main.players.chams_enemy2_vis.get(), false);
+
 			player->DrawModel();
 		}
+		else
+		{
+			if (g_menu.main.players.chams_enemy.get(1)) {
 
-		SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+				SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+				SetupMaterial(m_materials[g_menu.main.players.chams_enemy_mat.get()], g_menu.main.players.chams_enemy_invis.get(), true);
 
-		if (g_menu.main.visuals.chamstype.get() == 0) {
-			SetupMaterial(debugambientcube, g_menu.main.players.chams_enemy_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 1) {
-			SetupMaterial(debugdrawflat, g_menu.main.players.chams_enemy_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 2) {
-			SetupMaterial(materialMetall, g_menu.main.players.chams_enemy_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 3) {
-			SetupMaterial(skeet, g_menu.main.players.chams_enemy_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 4) {
-			SetupMaterial(onetap, g_menu.main.players.chams_enemy_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 5) {
-			SetupMaterial(materialMetall3, g_menu.main.players.chams_enemy_vis.get(), false);
-		}
+				player->DrawModel();
+			}
 
-		player->DrawModel();
+			SetAlpha(g_menu.main.players.chams_enemy_blend.get() / 100.f);
+			SetupMaterial(m_materials[g_menu.main.players.chams_enemy_mat.get()], g_menu.main.players.chams_enemy_vis.get(), false);
+
+			player->DrawModel();
+		}
 	}
 
-	else if (!enemy && g_menu.main.players.chams_friendly.get(0)) {
+	else if (!enemy && !g_cl.m_local && g_menu.main.players.chams_friendly.get(0)) {
 		if (g_menu.main.players.chams_friendly.get(1)) {
 
 			SetAlpha(g_menu.main.players.chams_friendly_blend.get() / 100.f);
-			if (g_menu.main.visuals.chamstype.get() == 0) {
-				SetupMaterial(debugambientcube, g_menu.main.players.chams_friendly_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 1) {
-				SetupMaterial(debugdrawflat, g_menu.main.players.chams_friendly_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 2) {
-				SetupMaterial(materialMetallnZ, g_menu.main.players.chams_friendly_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 3) {
-				SetupMaterial(skeet, g_menu.main.players.chams_friendly_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 4) {
-				SetupMaterial(onetap, g_menu.main.players.chams_friendly_invis.get(), true);
-			}
-			if (g_menu.main.visuals.chamstype.get() == 5) {
-				SetupMaterial(materialMetall3, g_menu.main.players.chams_friendly_invis.get(), true);
-			}
-
+			SetupMaterial(m_materials[g_menu.main.players.chams_friendly_mat.get()], g_menu.main.players.chams_friendly_invis.get(), true);
 
 			player->DrawModel();
 		}
 
 		SetAlpha(g_menu.main.players.chams_friendly_blend.get() / 100.f);
-		if (g_menu.main.visuals.chamstype.get() == 0) {
-			SetupMaterial(debugambientcube, g_menu.main.players.chams_friendly_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 1) {
-			SetupMaterial(debugdrawflat, g_menu.main.players.chams_friendly_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 2) {
-			SetupMaterial(materialMetallnZ, g_menu.main.players.chams_friendly_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 3) {
-			SetupMaterial(skeet, g_menu.main.players.chams_friendly_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 4) {
-			SetupMaterial(onetap, g_menu.main.players.chams_friendly_vis.get(), false);
-		}
-		if (g_menu.main.visuals.chamstype.get() == 5) {
-			SetupMaterial(materialMetall3, g_menu.main.players.chams_friendly_vis.get(), false);
-		}
-
+		SetupMaterial(m_materials[g_menu.main.players.chams_friendly_mat.get()], g_menu.main.players.chams_friendly_vis.get(), false);
 
 		player->DrawModel();
 	}
@@ -630,7 +462,7 @@ bool Chams::SortPlayers() {
 		Player* player = g_csgo.m_entlist->GetClientEntity< Player* >(i);
 
 		// validate.
-		if (!player || !player->IsPlayer() || !player->alive())
+		if (!player || !player->IsPlayer() || !player->alive() || player->dormant())
 			continue;
 
 		// do not draw players occluded by view plane.

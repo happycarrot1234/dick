@@ -104,6 +104,16 @@ namespace callbacks {
 	bool IsConfig4();
 	bool IsConfig5();
 	bool IsConfig6();
+	bool IsChamsSelection0();
+	bool LocalGlowChamsSelection();
+	bool IsChamsSelection1();
+	bool EnemyGlowChamsSelection();
+	bool IsChamsSelection2();
+	bool IsChamsSelection3();
+	bool IsChamsSelection4();
+	bool IsChamsSelection5();
+	bool IsChamsSelection6();
+	bool IsChamsSelection7();
 
 	bool IsTransparentProps();
 	bool IsSkyBoxChange();

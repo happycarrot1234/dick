@@ -789,3 +789,47 @@ bool callbacks::KNIFE_SHADOW_DAGGERS() {
 bool callbacks::AUTO_STOP() {
 	return !g_menu.main.movement.autostop_always_on.get();
 }
+
+bool callbacks::IsChamsSelection0() {
+	return g_menu.main.players.chams_entity_selection.get() == 0;
+}
+
+bool callbacks::LocalGlowChamsSelection()
+{
+	return g_menu.main.players.chams_entity_selection.get() == 0 && g_menu.main.players.chams_local_mat.get() == 4;
+}
+
+bool callbacks::IsChamsSelection1() {
+	return g_menu.main.players.chams_entity_selection.get() == 1;
+}
+
+bool callbacks::EnemyGlowChamsSelection()
+{
+	return g_menu.main.players.chams_entity_selection.get() == 1 && g_menu.main.players.chams_enemy_mat.get() == 4;
+}
+
+bool callbacks::IsChamsSelection2() {
+	return g_menu.main.players.chams_entity_selection.get() == 2;
+}
+
+bool callbacks::IsChamsSelection3() {
+	return g_menu.main.players.chams_entity_selection.get() == 3;
+}
+
+bool callbacks::IsChamsSelection4()
+{
+	return g_menu.main.players.chams_entity_selection.get() == 4;
+}
+
+bool callbacks::IsChamsSelection5()
+{
+	return g_menu.main.players.chams_entity_selection.get() == 5;
+}
+bool callbacks::IsChamsSelection6()
+{
+	return g_menu.main.players.chams_entity_selection.get() == 6;
+}
+bool callbacks::IsChamsSelection7()
+{
+	return g_menu.main.players.chams_entity_selection.get() == 7;
+}

@@ -407,6 +407,17 @@ void Visuals::think() {
 	ManualAntiAim();
 	Hitmarker();
 	DrawPlantedC4();
+
+	static auto cl_foot_contact_shadows = g_csgo.m_cvar->FindVar(HASH("cl_foot_contact_shadows"));
+	if (g_cl.m_processing && g_menu.main.players.chams_local_skeleton.get() && m_thirdperson)
+	{
+		cl_foot_contact_shadows->SetValue(0);
+		DrawSkeleton(g_cl.m_local, 255);
+	}
+	else
+	{
+		cl_foot_contact_shadows->SetValue(1);
+	}
 }
 
 void Visuals::Spectators() {
@@ -2028,9 +2039,9 @@ void Visuals::DrawBeams() {
 				beam_info.m_pszModelName = XOR("sprites/white.vmt");
 				beam_info.m_flHaloScale = 0.f;
 				beam_info.m_flLife = g_menu.main.visuals.impact_beams_time.get();
-				beam_info.m_flWidth = .6f;
+				beam_info.m_flWidth = 1.f;
 				beam_info.m_flEndWidth = .75f;
-				beam_info.m_flFadeLength = 3.0f;
+				beam_info.m_flFadeLength = 10.0f;
 				beam_info.m_flAmplitude = 0.f;//beam 'jitter'.
 				beam_info.m_flBrightness = 255.f;
 				beam_info.m_flSpeed = 1.f;  // seems to control how fast the 'scrolling' of beam is... once fully spawned.
