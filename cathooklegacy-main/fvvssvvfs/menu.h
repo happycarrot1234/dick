@@ -136,6 +136,7 @@ public:
 	Checkbox      ignor_limbs;
 	Checkbox      lagfix;
 	Checkbox	  correct;
+	Checkbox	  delayshot;
 	MultiDropdown baim1;
 	MultiDropdown baim2;
 	MultiDropdown head1;
@@ -1159,6 +1160,7 @@ public:
 	Checkbox      pen_damage;
 	MultiDropdown indicators;
 	Checkbox      tracers;
+	Colorpicker traj1;
 	Checkbox      impact_beams;
 	Colorpicker   impact_beams_color;
 	Colorpicker   impact_beams_hurt_color;
@@ -1305,6 +1307,9 @@ public:
 
 		tracers.setup(XOR("grenade simulation"), XOR("tracers"));
 		RegisterElement(&tracers, 1);
+
+		traj1.setup(XOR("trajectory color"), XOR("traj1"), colors::light_blue);
+		RegisterElement(&traj1, 1);
 
 		impact_beams.setup(XOR("impact beams"), XOR("impact_beams"));
 		RegisterElement(&impact_beams, 1);

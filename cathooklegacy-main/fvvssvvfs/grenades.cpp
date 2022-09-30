@@ -13,6 +13,9 @@ void Grenades::reset() {
 	m_bounces.clear();
 }
 
+
+
+
 void Grenades::paint() {
 	static CTraceFilterSimple_game filter{};
 	CGameTrace	                   trace;
@@ -29,7 +32,7 @@ void Grenades::paint() {
 	// we need some points at least.
 	if (m_path.size() < 2)
 		return;
-
+	const auto col_accent = g_menu.main.visuals.traj1.get();
 	// setup trace filter for later.
 	filter.SetPassEntity(g_cl.m_local);
 
@@ -42,7 +45,7 @@ void Grenades::paint() {
 		vec2_t screen0, screen1;
 
 		if (render::WorldToScreen(prev, screen0) && render::WorldToScreen(cur, screen1))
-			render::line(screen0, screen1, { 60, 180, 225 });
+			render::line(screen0, screen1, { col_accent });
 
 		// store point for next iteration.
 		prev = cur;
@@ -102,7 +105,8 @@ void Grenades::paint() {
 			m_bounces.back().color = { 0, 255, 0, 255 };
 
 		if (render::WorldToScreen(prev, screen))
-			render::esp_small.string(screen.x, screen.y + 5, { 255, 255, 255, 0xb4 }, tfm::format(XOR("%i"), (int)target.first), render::ALIGN_CENTER);
+
+			render::menu.string(screen.x, screen.y + 5, { 255, 255, 255, 0xb4 }, tfm::format(XOR("%i dmg"), (int)target.first), render::ALIGN_CENTER);
 	}
 
 	// render bounces.
@@ -110,12 +114,13 @@ void Grenades::paint() {
 		vec2_t screen;
 
 		if (render::WorldToScreen(b.point, screen))
-			render::rect(screen.x - 2, screen.y - 2, 4, 4, b.color);
+
+			render::circle(screen.x - 0, screen.y - 0, 2, 4, b.color);
+
 	}
 }
 
 void Grenades::think() {
-	bool attack, attack2;
 
 	// reset some data.
 	reset();
@@ -130,11 +135,8 @@ void Grenades::think() {
 	if (g_cl.m_weapon_type != WEAPONTYPE_GRENADE)
 		return;
 
-	attack = (g_cl.m_cmd->m_buttons & IN_ATTACK);
-	attack2 = (g_cl.m_cmd->m_buttons & IN_ATTACK2);
-
-	//if( !attack && !attack2 )
-	//	return;
+	if (g_cl.m_weapon_type == WEAPONTYPE_GRENADE && !g_cl.m_weapon->m_bPinPulled())
+		return;
 
 	m_id = g_cl.m_weapon_id;
 	m_power = g_cl.m_weapon->m_flThrowStrength();

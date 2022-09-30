@@ -169,8 +169,6 @@ void math::VectorAngles(const vec3_t& forward, ang_t& angles, vec3_t* up) {
     angles = { pitch, yaw, roll };
 }
 
-static constexpr long double M_PIRAD = 0.01745329251f;
-
 vec3_t math::vector_angles(const vec3_t& v) {
     float magnitude = sqrtf(v.x * v.x + v.y * v.y);
     float pitch = atan2f(-v.z, magnitude) * M_RADPI;

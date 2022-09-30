@@ -111,7 +111,7 @@ void Client::ClanTag()
 		SetClanTagFn(tag.c_str(), XOR("cathook"));
 	};
 
-	std::string szClanTag = XOR("cathook");
+	std::string szClanTag = XOR( u8"");
 	std::string szSuffix = XOR("");
 	static int iPrevFrame = 0;
 	static bool bReset = false;

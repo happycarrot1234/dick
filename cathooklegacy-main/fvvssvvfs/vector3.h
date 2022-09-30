@@ -224,6 +224,24 @@ public:
 		};
 	}
 
+	__forceinline void validate_vec()
+	{
+		if (std::isnan(this->x)
+			|| std::isnan(this->y)
+			|| std::isnan(this->z))
+			this->clear();
+
+		if (std::isinf(this->x)
+			|| std::isinf(this->y)
+			|| std::isinf(this->z))
+			this->clear();
+	}
+
+	__forceinline bool is_zero()
+	{
+		return x == 0.f && y == 0.f && z == 0.f; //-V550
+	}
+
 	__forceinline bool  IsZero(float tolerance = 0.01f) const
 	{
 		return (this->x > -tolerance && this->x < tolerance&&

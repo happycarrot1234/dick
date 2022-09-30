@@ -1,17 +1,15 @@
 #include "includes.h"
+#include "xorstr.h"
 
-int __stdcall DllMain( HMODULE self, ulong_t reason, void *reserved ) {
-    if( reason == DLL_PROCESS_ATTACH ) {
+int __stdcall DllMain(HMODULE self, ulong_t reason, void* reserved) {
+    if (reason == DLL_PROCESS_ATTACH) {
 
-#ifndef KOLO
-        HANDLE thread = CreateThread( nullptr, 0, Client::init, nullptr, 0, nullptr );
-        if( !thread )
-            return 0;
+        AllocConsole();
+        freopen_s((FILE**)stdin, XOR_NOT("CONIN$"), XOR_NOT("r"), stdin);
+        freopen_s((FILE**)stdout, XOR_NOT("CONOUT$"), XOR_NOT("w"), stdout);
+        SetConsoleTitleA("why am i crashing101 | debugger");
 
-        // CloseHandle( thread );
-#else
-		Client::init( nullptr );
-#endif
+        Client::init(nullptr);
         return 1;
     }
 

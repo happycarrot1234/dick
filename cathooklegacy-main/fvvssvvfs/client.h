@@ -26,6 +26,42 @@ static t lerp2(float progress, const t& t1, const t& t2) {
 	return t1 + (t2 - t1) * progress;
 }
 
+class user_cmd_t {
+public:
+	virtual ~user_cmd_t() { };
+
+	int		m_cmd_nr; // 0x04 For matching server and client commands for debugging
+	int		m_tick_count; // 0x08 the tick the client created this command
+	vec3_t	m_viewangles; // 0x0C Player instantaneous view angles.
+	vec3_t	m_aimdirection; // 0x18
+	float	m_forwardmove; // 0x24
+	float	m_sidemove; // 0x28
+	float	m_upmove; // 0x2C
+	int		m_buttons; // 0x30 Attack button states
+	uint8_t m_impulse; // 0x34
+	int		m_weaponselect; // 0x38 Current weapon id
+	int		m_weaponsubtype; // 0x3C
+	int		m_random_seed; // 0x40 For shared random functions
+	short	m_mousedx; // 0x44 mouse accum in x from create move
+	short	m_mousedy; // 0x46 mouse accum in y from create move
+	bool	m_predicted; // 0x48 Client only, tracks whether we've predicted this command at least once
+	vec3_t  headangles; // 0x49
+	vec3_t	headoffset; // 0x55
+
+	__forceinline user_cmd_t clamp(bool angles = true) {
+		if (angles)
+			m_viewangles.normalize();
+
+		m_forwardmove = std::clamp(m_forwardmove, -450.f, 450.f);
+		m_sidemove = std::clamp(m_sidemove, -450.f, 450.f);
+		m_upmove = std::clamp(m_upmove, -450.f, 450.f);
+
+		return *this;
+	}
+private:
+
+};
+
 class Client {
 public:
 	// hack thread.

@@ -40,26 +40,30 @@ public:
 
 	void ResolveAngles(Player* player, LagRecord* record);
 	bool ShouldUseFreestand(LagRecord* record);
+	float AntiFreestanding(LagRecord* record);
 	void Freestand(Player* player, AimPlayer* data, LagRecord* record);
 	bool Spin_Detection(AimPlayer* data);
-	void ResolveStand(Player* player, AimPlayer* data, LagRecord* record);
+	void ResolveStand(AimPlayer* data, LagRecord* record, Player* player);
 	void ResolveWalk(AimPlayer* data, LagRecord* record);
-	void ResolveAir(Player* player, AimPlayer* data, LagRecord* record);
+	bool CheckLBY(Player* player, LagRecord* record, LagRecord* prev_record);
+	//void ResolveAir(Player* player, AimPlayer* data, LagRecord* record);
 	//void ResolveWalk(AimPlayer* data, LagRecord* record, Player* player);
 	//void ResolveWalk(AimPlayer* data, LagRecord* record);
 	void ResolveYawBruteforce(LagRecord* record, Player* player, AimPlayer* data);
+	void ResolveAir(Player* player, AimPlayer* data, LagRecord* record);
 	float GetDirectionAngle(int index, Player* player, LagRecord* record);
 //	float GetDirectionAngle(int index, Player* player);
 	void LastMoveLby(LagRecord* record, AimPlayer* data, Player* player);
 	//void ResolveStand(AimPlayer* data, LagRecord* record);
 	void StandNS(AimPlayer* data, LagRecord* record);
-	//void ResolveAir(AimPlayer* data, LagRecord* record, Player* player);
+	
 
 	void AirNS(AimPlayer* data, LagRecord* record);
+	//void ResolveAir(AimPlayer* data, LagRecord* record, Player* player);
 	void ResolvePoses(Player* player, LagRecord* record);
 	void ResolveOverride(Player* player, LagRecord* record, AimPlayer* data);
 
-	void AntiFreestand(Player* pEnemy, float& y, float flLeftDamage, float flRightDamage, float flRightFraction, float flLeftFraction, float flToMe, int& iShotsMissed);
+	//void AntiFreestand(Player* pEnemy, float& y, float flLeftDamage, float flRightDamage, float flRightFraction, float flLeftFraction, float flToMe, int& iShotsMissed);
 
 	void lby_update_checks(Player* entity, LagRecord* a, AimPlayer* b, LagRecord* record);
 

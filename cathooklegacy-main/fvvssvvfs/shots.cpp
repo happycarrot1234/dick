@@ -291,39 +291,42 @@ void Shots::OnImpact(IGameEvent* evt) {
 		// if we miss a shot on body update.
 		// we can chose to stop shooting at them.
 		if (mode == Resolver::Modes::RESOLVE_BODY) {
-			g_notify.add(tfm::format(XOR("[Resolver info: LBY update | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: LBY update  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_LAST_LBY) {
-			g_notify.add(tfm::format(XOR("[Resolver info: Last LBY | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Last LBY  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_LASTMOVE) {
-			g_notify.add(tfm::format(XOR("[Resolver info: Last move | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Last move  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_STOPPED_MOVING) {
-			g_notify.add(tfm::format(XOR("[Resolver info: Stoped Moving | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Stoped Moving  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_FREESTAND) {
-			g_notify.add(tfm::format(XOR("[Resolver info: Freestanding | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Freestanding  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_BRUTEFORCE) {
-			g_notify.add(tfm::format(XOR("[Resolver info: Bruteforce | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Bruteforce  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_AIR) {
-			g_notify.add(tfm::format(XOR("[Resolver info Air | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Air  Angle Shot: %s\n"), balls));
 		}
 
 		else if (mode == Resolver::Modes::RESOLVE_WALK) {
-			g_notify.add(tfm::format(XOR("[Resolver info: Walking | Angle Shot: %s]\n"), balls));
+			g_notify.add(tfm::format(XOR("missed shot detected  rmode: Walking  Angle Shot: %s\n"), balls));
 		}
 
 
 		++data->m_missed_shots;
+
+		//g_notify.add(XOR("missed shot due to resolver\n"));
+
 	}
 	else
 		iHit = true, ++data->m_missed_shots;
@@ -401,7 +404,7 @@ void Shots::OnHurt(IGameEvent* evt) {
 		// hehe boy
 		target->ComputeHitboxSurroundingBox(&iPlayermins, &iPlayermaxs);
 
-		// correct x and y coordinates.
+		// correct x and y coordinates
 		iPlayermins = { iPlayerOrigin.x, iPlayerOrigin.y, iPlayermins.z };
 		iPlayermaxs = { iPlayerOrigin.x, iPlayerOrigin.y, iPlayermaxs.z + 8.f };
 
@@ -420,9 +423,9 @@ void Shots::OnHurt(IGameEvent* evt) {
 		}
 	}
 
-	// print this shit.
+	// print this shit
 	if (g_menu.main.misc.notifications.get(1)) {
-		std::string out = tfm::format(XOR("Shot ent: %s | Hitbox %s | Damage: %i \n"), name, m_groups[group], (int)damage);
+		std::string out = tfm::format(XOR("Hit ent: %s  HB: %s  DMG: %i \n"), name, m_groups[group], (int)damage);
 		g_notify.add(out);
 		didhiti = true;
 	}

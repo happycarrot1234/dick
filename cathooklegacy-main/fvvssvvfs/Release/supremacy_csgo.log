@@ -1,59 +1,8 @@
-﻿  aimbot.cpp
-  bonesetup.cpp
-  button.cpp
-  callbacks.cpp
-  chams.cpp
-  checkbox.cpp
-  client.cpp
-  clientstate.cpp
-  colorpicker.cpp
-  config.cpp
-  edit.cpp
-  events.cpp
-  firebullets.cpp
-  gh.cpp
-  keybind.cpp
-  matchframework.cpp
-  materialsystem.cpp
-  shadowmgr.cpp
-  csgo.cpp
-  cvar.cpp
-  modelrender.cpp
-  dropdown.cpp
-  entry.cpp
-  form.cpp
-  grenades.cpp
-  gui.cpp
-  hooks.cpp
-  hvh.cpp
-  engine.cpp
-  knifebot.cpp
-  lagcomp.cpp
-  clientdll.cpp
-  shots.cpp
-  skins.cpp
-  surface.cpp
-  math.cpp
-  movement.cpp
-  multidropdown.cpp
-  netdata.cpp
-  clientmode.cpp
-  panel.cpp
-  penetration.cpp
-  player.cpp
-  pred.cpp
-  netchannel.cpp
-  render.cpp
-  viewrender.cpp
-  resolver.cpp
-  prediction.cpp
-  renderview.cpp
-  slider.cpp
-  visuals.cpp
-  wndproc.cpp
+﻿  resolver.cpp
+LINK : warning LNK4098: defaultlib 'LIBCMTD' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  8110 of 8156 functions (99.4%) were compiled, the rest were copied from previous compilation.
-    1485 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+  1729 of 8209 functions (21.1%) were compiled, the rest were copied from previous compilation.
+    430 functions were new in current compilation
+    149 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   supremacy_csgo.vcxproj -> C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\output\release\cathook.dll

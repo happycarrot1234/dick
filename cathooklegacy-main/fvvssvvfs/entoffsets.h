@@ -69,6 +69,7 @@ public:
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_flMaxspeed;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_surfaceFriction;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_flFlashBangTime;
+    XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_bIsWalking;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_angEyeAngles;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_aimPunchAngle;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_viewPunchAngle;
@@ -124,6 +125,7 @@ public:
 	XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_flAbsYaw;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_flConstraintRadius;
     XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_hMyWeapons;
+    XoredNetvar< GET_XOR_KEYUI32, __COUNTER__ > m_ubEFNoInterpParity;
 
     void init( ) {
         // initialize a xored netvar.
@@ -219,6 +221,8 @@ public:
 		INIT_XOREDNETVAR( m_flAbsYaw,					HASH( "DT_CSRagdoll" ),			   HASH( "m_flAbsYaw" ) );
         INIT_XOREDNETVAR( m_flConstraintRadius,			HASH( "DT_CSPlayer" ),             HASH( "m_flConstraintRadius" ) );
         INIT_XOREDNETVAR( m_hMyWeapons,			        HASH( "DT_CSPlayer" ),             HASH( "m_hMyWeapons" ) );
+        INIT_XOREDNETVAR(m_bIsWalking,                  HASH("DT_CSPlayer"),               HASH("m_bIsWalking"));
+        INIT_XOREDNETVAR(m_ubEFNoInterpParity,          HASH("DT_BasePlayer"),             HASH("m_ubEFNoInterpParity"));
 
         INIT_XOREDNETVAR_SPECIFIC( m_flOldSimulationTime,        g_netvars.get( HASH( "DT_BaseEntity" ),       HASH( "m_flSimulationTime" ) ) + sizeof( float ) );
         INIT_XOREDNETVAR_SPECIFIC( m_CustomMaterials,            g_netvars.get( HASH( "DT_BaseCombatWeapon" ), HASH( "m_Item" ) ) + 0x14 );

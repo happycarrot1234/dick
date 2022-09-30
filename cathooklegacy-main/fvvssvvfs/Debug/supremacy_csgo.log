@@ -7,11 +7,11 @@
   checkbox.cpp
   client.cpp
   clientdll.cpp
-C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file client.cpp)
 C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\clientdll.cpp(67): warning C4405: 'in': identifier is reserved word
 C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\clientdll.cpp(68): warning C4405: 'out': identifier is reserved word
-C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(1565,35): warning C4018: '<': signed/unsigned mismatch
-C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(2611,6): warning C4101: 'hitbox': unreferenced local variable
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(1551,35): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\aimbot.cpp(2597,6): warning C4101: 'hitbox': unreferenced local variable
+C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.h(137,1): warning C4102: 'BREAKTROUGH': unreferenced label (compiling source file client.cpp)
 C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\chams.cpp(287,14): warning C4834: discarding return value of function with 'nodiscard' attribute
 C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\chams.cpp(324,13): warning C4101: 'record': unreferenced local variable
   clientmode.cpp
@@ -36,8 +36,8 @@ C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.cpp(92,33):
   hvh.cpp
   keybind.cpp
   knifebot.cpp
-  lagcomp.cpp
 C:\Users\Ggali\Documents\GitHub\dick\cathooklegacy-main\fvvssvvfs\gh.cpp(140): warning C4715: 'index_to_grenade_name_icon': not all control paths return a value
+  lagcomp.cpp
   matchframework.cpp
   materialsystem.cpp
   math.cpp

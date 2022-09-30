@@ -10,6 +10,46 @@ void HVH::IdealPitch() {
 	g_cl.m_cmd->m_view_angles.x = state->m_min_pitch;
 }
 
+void HVH::fix_movement() {
+	if (!g_menu.main.antiaim.enable.get() && !g_menu.main.aimbot.enable.get())
+		return;
+
+	float pitch = std::remainderf(g_cl.m_cmd->m_view_angles.x, 360.f);
+	bool fix_forward_move = (pitch < -90.f || pitch > 90.f); // make sure we never hit the stanky leg 
+
+	auto last_cmd = g_hvh.get_last_cmd();
+	auto old_yaw = last_cmd->m_viewangles.y;
+	auto cur_yaw = g_cl.m_cmd->m_view_angles.y;
+
+	float yaw_delta = cur_yaw - old_yaw;
+
+	float f1 = old_yaw < 0.f ? old_yaw + 360.f : old_yaw;
+	float f2 = cur_yaw < 0.f ? cur_yaw + 360.f : cur_yaw;
+
+	if (f2 < f1)
+		yaw_delta = abs(f2 - f1);
+	else
+		yaw_delta = 360.f - abs(f1 - f2);
+	yaw_delta = 360.f - yaw_delta;
+
+	g_cl.m_cmd->m_forward_move = cos(yaw_delta * M_PIRAD) * last_cmd->m_forwardmove + cos((yaw_delta + 90.f) * M_PIRAD) * last_cmd->m_sidemove; // setting angles 
+	g_cl.m_cmd->m_side_move = sin(yaw_delta * M_PIRAD) * last_cmd->m_forwardmove + sin((yaw_delta + 90.f) * M_PIRAD) * last_cmd->m_sidemove;
+
+	if (fix_forward_move)
+		g_cl.m_cmd->m_forward_move *= -1.f;
+
+	if (g_cl.m_local->m_MoveType() != MOVETYPE_LADDER) { // conditions
+		if (g_cl.m_cmd->m_forward_move) {
+			g_cl.m_cmd->m_buttons &= ~(g_cl.m_cmd->m_forward_move < 0 ? IN_FORWARD : IN_BACK);
+			g_cl.m_cmd->m_buttons |= (g_cl.m_cmd->m_forward_move > 0 ? IN_FORWARD : IN_BACK);
+		}
+		if (g_cl.m_cmd->m_side_move) {
+			g_cl.m_cmd->m_buttons &= ~(g_cl.m_cmd->m_side_move < 0 ? IN_MOVERIGHT : IN_MOVELEFT);
+			g_cl.m_cmd->m_buttons |= (g_cl.m_cmd->m_side_move > 0 ? IN_MOVERIGHT : IN_MOVELEFT);
+		}
+	}
+} // still need to fix a few things, remind me to do it nexus - places 
+
 void HVH::AntiAimPitch() {
 	bool safe = g_menu.main.misc.mode.get() == 0;
 
@@ -39,7 +79,11 @@ void HVH::AntiAimPitch() {
 	}
 }
 
-void HVH::AutoDirection() {
+void HVH::AutoDirection() 
+{
+	if (g_hvh.m_left || g_hvh.m_right || g_hvh.m_back)
+		return;		
+
 	// constants.
 	constexpr float STEP{ 4.f };
 	constexpr float RANGE{ 32.f };
@@ -450,13 +494,10 @@ bool HVH::DoEdgeAntiAim(Player* player, ang_t& out) {
 
 void HVH::DistortionAntiAim(CUserCmd* cmd)
 {
-	if (!g_menu.main.antiaim.distortion.get())
+	if (g_hvh.m_left || g_hvh.m_right || g_hvh.m_back)
 		return;
 
-	//if (g_menu.main.antiaim.manual_override.get() && manualSide != 3)
-		//return;
-
-	if (!(g_cl.m_flags & FL_ONGROUND))
+	if (!g_menu.main.antiaim.distortion.get())
 		return;
 
 	if (g_cl.m_speed > 0.1f)
