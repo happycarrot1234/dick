@@ -265,7 +265,7 @@ struct RenderableInstance_t {
 };
 struct client_hit_verify_t
 {
-	vec3_t position;
+	vec3_t pos;
 	float time;
 	float expires;
 };
@@ -867,6 +867,10 @@ public:
 	__forceinline CBoneCache &m_BoneCache() {
 		// TODO; sig
 		return get< CBoneCache >(g_entoffsets.m_BoneCache);
+	}
+
+	__forceinline c_utl_vector<matrix3x4_t>bone_cache() {
+		return *reinterpret_cast<c_utl_vector<matrix3x4_t>*>(uintptr_t(this) + 0x2900);
 	}
 
 	__forceinline matrix3x4_t**& m_iBoneCache() {

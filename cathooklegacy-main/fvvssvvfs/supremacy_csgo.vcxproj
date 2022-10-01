@@ -257,6 +257,7 @@
     <ClInclude Include="memalloc.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="minhook\minhook.h" />
+    <ClInclude Include="modelcache.h" />
     <ClInclude Include="modules.h" />
     <ClInclude Include="movement.h" />
     <ClInclude Include="multidropdown.h" />

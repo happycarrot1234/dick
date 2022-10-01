@@ -2793,6 +2793,9 @@ void Aimbot::apply() {
 			// set angles to target.
 			g_cl.m_cmd->m_view_angles = m_angle;
 
+			// store matrix for shot record chams
+			g_visuals.AddMatrix(m_target, m_target->bone_cache().base());
+
 			// if not silent aim, apply the viewangles.
 			if (!g_menu.main.aimbot.silent.get())
 				g_csgo.m_engine->SetViewAngles(m_angle);

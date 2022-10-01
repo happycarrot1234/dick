@@ -1,4 +1,5 @@
 #pragma once
+#include "modelcache.h"
 
 struct mstudiobbox_t {
 	int     m_bone;                 // 0x0000
@@ -60,8 +61,8 @@ struct studiohdr_t {
 
 class model_t {
 public:
-	void*  m_handle;
-	char   m_name[ 260 ];
+	void* m_handle;
+	char   m_name[260];
 	int    m_load_flags;
 	int    m_server_count;
 	int    m_type;
@@ -69,9 +70,16 @@ public:
 	vec3_t m_mins;
 	vec3_t m_maxs;
 	float  m_radius;
+	void* m_key_values;
+	union
+	{
+		void* m_brush;
+		MDLHandle_t m_studio;
+		void* m_sprite;
+	};
 
 private:
-	PAD( 0x1C );
+	PAD(0x1C);
 };
 
 class IVModelInfo {

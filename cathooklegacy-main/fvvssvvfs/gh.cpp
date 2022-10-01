@@ -139,7 +139,7 @@ const char* index_to_grenade_name_icon(int index)
     }
 }
 
-float DEG2RAD(float deg) {
+float  DEG2RAD(float deg) {
     return deg * 3.14159265358979323846 / 180;
 }
 

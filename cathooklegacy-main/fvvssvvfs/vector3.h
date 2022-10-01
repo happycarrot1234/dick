@@ -67,11 +67,6 @@ public:
 		};
 	}
 
-	__forceinline float dot(const vec3_t& v) const {
-		return (x * v.x + y * v.y + z * v.z);
-	}
-
-
 	__forceinline vec3_t operator-( const vec3_t& v ) const {
 		return {
 			x - v.x,
@@ -212,8 +207,19 @@ public:
 	//	return ( x * v.x + y * v.y + z * v.z );
 	//}
 
-	__forceinline float dot( float* v ) const {
-		return ( x * v[ 0 ] + y * v[ 1 ] + z * v[ 2 ] );
+	__forceinline float dot(const vec3_t& v) const {
+		return (x * v.x + y * v.y + z * v.z);
+	}
+
+	__forceinline float dot(float* v) const {
+		return (x * v[0] + y * v[1] + z * v[2]);
+	}
+
+	__forceinline float vec3_t::Dot(const float* fOther) const
+	{
+		const vec3_t& a = *this;
+
+		return(a.x * fOther[0] + a.y * fOther[1] + a.z * fOther[2]);
 	}
 
 	__forceinline vec3_t cross( const vec3_t &v ) const {

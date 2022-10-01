@@ -1,5 +1,11 @@
 #pragma once
 
+#define M_PI		(float)3.14159265358979323846f
+#define M_RADPI		57.295779513082f
+#define M_PIRAD     0.01745329251f
+#define RAD2DEG( x  )  ( (float)(x) * (float)(180.f / M_PI) )
+#define DEG2RADDICK( x  )  ( (float)(x) * (float)(M_PI / 180.f) )
+
 namespace math {
     // pi constants.
     constexpr float pi = 3.1415926535897932384f; // pi
@@ -84,6 +90,9 @@ namespace math {
    // void AngleVectors(const ang_t& angles, vec3_t& forward);
     void  AngleVectors(const ang_t& angles, vec3_t* forward, vec3_t* right = nullptr, vec3_t* up = nullptr);
     inline void SinCos(float radians, float* sine, float* cosine);
+    void matrix_set_column(const vec3_t& in, int column, matrix3x4_t& out);
+    void angle_matrix(const ang_t& angles, const vec3_t& position, matrix3x4_t& matrix);
+    void angle_matrix(const ang_t& angles, matrix3x4_t& matrix);
     void AngleVectorKidua(ang_t& vAngle, vec3_t& vForward);
     float GetFOV(const ang_t& view_angles, const vec3_t& start, const vec3_t& end);
     void  VectorTransform(const vec3_t& in, const matrix3x4_t& matrix, vec3_t& out);

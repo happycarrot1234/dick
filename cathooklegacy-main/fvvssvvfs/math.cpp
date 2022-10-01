@@ -241,6 +241,49 @@ void inline math::SinCos(float radians, float* sine, float* cosine)
     }
 }
 
+void math::matrix_set_column(const vec3_t& in, int column, matrix3x4_t& out)
+{
+    out[0][column] = in.x;
+    out[1][column] = in.y;
+    out[2][column] = in.z;
+}
+
+void math::angle_matrix(const ang_t& angles, const vec3_t& position, matrix3x4_t& matrix)
+{
+    angle_matrix(angles, matrix);
+    matrix_set_column(position, 3, matrix);
+}
+
+void math::angle_matrix(const ang_t& angles, matrix3x4_t& matrix)
+{
+    float sr, sp, sy, cr, cp, cy;
+
+    SinCos(DEG2RADDICK(angles.x), &sp, &cp);
+    SinCos(DEG2RADDICK(angles.y), &sy, &cy);
+    SinCos(DEG2RADDICK(angles.z), &sr, &cr);
+
+    // matrix = (YAW * PITCH) * ROLL
+    matrix[0][0] = cp * cy;
+    matrix[1][0] = cp * sy;
+    matrix[2][0] = -sp;
+
+    const auto crcy = cr * cy;
+    const auto crsy = cr * sy;
+    const auto srcy = sr * cy;
+    const auto srsy = sr * sy;
+    matrix[0][1] = sp * srcy - crsy;
+    matrix[1][1] = sp * srsy + crcy;
+    matrix[2][1] = sr * cp;
+
+    matrix[0][2] = (sp * crcy + srsy);
+    matrix[1][2] = (sp * crsy - srcy);
+    matrix[2][2] = cr * cp;
+
+    matrix[0][3] = 0.0f;
+    matrix[1][3] = 0.0f;
+    matrix[2][3] = 0.0f;
+}
+
 void math::AngleVectorKidua(ang_t& vAngle, vec3_t& vForward)
 {
     float sp, sy, cp, cy;

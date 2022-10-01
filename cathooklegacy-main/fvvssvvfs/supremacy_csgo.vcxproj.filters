@@ -321,6 +321,9 @@
     <ClInclude Include="minhook\minhook.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="modelcache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bonesetup.cpp">

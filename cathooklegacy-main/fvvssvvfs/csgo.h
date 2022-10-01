@@ -56,6 +56,7 @@ public:
 	IVRenderView *m_render_view;
 	CViewRender *m_view_render;
 	IVModelRender *m_model_render;
+	IMDLCache* m_model_cache;
 	IMaterialSystem *m_material_system;
 	CStudioRenderContext *m_studio_render;
 	IVModelInfo *m_model_info;

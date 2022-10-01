@@ -54,6 +54,8 @@ enum {
 	MATERIAL_VAR_ALPHA_MODIFIED_BY_PROXY = 1073741824,
 };
 
+typedef unsigned short ModelInstanceHandle_t;
+
 struct LightDesc_t {
 	LightType_t  m_Type;										//< MATERIAL_LIGHT_xxx
 	vec3_t       m_Color;											//< color+intensity 
@@ -240,6 +242,8 @@ public:
 
 };
 
+class IMatRenderContext;
+
 class IMaterialSystem {
 public:
 	enum indices : size_t {
@@ -274,6 +278,10 @@ public:
 
 	__forceinline IMaterial* GetMaterial(uint16_t handle) {
 		return util::get_method< IMaterial* (__thiscall*)(void*, uint16_t) >(this, GETMATERIAL)(this, handle);
+	}
+
+	IMatRenderContext* get_render_context() {
+		return util::get_method(this, 115).as< IMatRenderContext* (__thiscall*)(decltype(this)) >()(this);
 	}
 
 	// find material by hash.
@@ -321,6 +329,15 @@ public:
 	//__forceinline void ForcedMaterialOverride( IMaterial* mat ) {
 	//	return util::get_method< void( __thiscall* )( void *, IMaterial *, int, int ) >( this, FORCEDMATERIALOVERRIDE )( this, mat, 0, 0 );
 	//}
+
+	__forceinline void DrawModelExecute(IMatRenderContext* ctx, const DrawModelState_t& state, const ModelRenderInfo_t& pInfo, matrix3x4_t* pCustomBoneToWorld = NULL) {
+		return util::get_method(this, DRAWMODELEXECUTE).as< void(__thiscall*)(decltype(this), IMatRenderContext*, const DrawModelState_t&, const ModelRenderInfo_t&, matrix3x4_t*)>()(this, ctx, state, pInfo, pCustomBoneToWorld);
+	}
+
+	__forceinline void ForceMat(IMaterial* mat, int nOverrideType = 0, int nOverrides = 0)
+	{
+		return util::get_method(this, FORCEDMATERIALOVERRIDE).as< void(__thiscall*)(decltype(this), IMaterial*, int&, int&)>()(this, mat, nOverrideType, nOverrides);
+	}
 
 	__forceinline bool IsForcedMaterialOverride() {
 		return util::get_method< bool(__thiscall*)(void*) >(this, ISFORCEDMATERIALOVERRIDE)(this);

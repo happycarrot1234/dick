@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "modelcache.h"
 
 CSGO	   g_csgo{};;
 WinAPI	   g_winapi{};;
@@ -74,6 +75,7 @@ bool CSGO::init( ) {
 	m_localize           = interfaces.get< ILocalize* >( HASH( "Localize_" ) );
     m_networkstringtable = interfaces.get< INetworkStringTableContainer* >( HASH( "VEngineClientStringTable" ) );
 	m_sound              = interfaces.get< IEngineSound* >( HASH( "IEngineSoundClient" ) );
+	m_model_cache = interfaces.get< IMDLCache* >(HASH("MDLCache"));
 
 	// convars.
 	clear                                   = m_cvar->FindVar( HASH( "clear" ) );

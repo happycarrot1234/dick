@@ -8,6 +8,26 @@ struct OffScreenDamageData_t {
     __forceinline OffScreenDamageData_t(float time, float m_color_step, Color color) : m_time{ time }, m_color{ color } {}
 };
 
+struct impact_info {
+    float x, y, z;
+    float time;
+};
+
+struct hitmarker_info {
+    impact_info impact;
+    int alpha;
+    float time;
+};
+
+struct matrices_t {
+    int                         ent_index;
+    ModelRenderInfo_t           info;
+    DrawModelState_t            state;
+    matrix3x4_t                 pBoneToWorld[128] = { };
+    float                       time;
+    matrix3x4_t                 model_to_world;
+};
+
 class Visuals {
 public:
     std::array< bool, 64 >                  m_draw;
@@ -17,6 +37,10 @@ public:
     bool                                    m_thirdperson;
     int                                    fakeangels[64];
     float					                m_hit_start, m_hit_end, m_hit_duration;
+
+    std::vector<impact_info>                impacts;
+    std::vector<hitmarker_info>             hitmarkers;
+    std::vector< matrices_t >               m_hit_matrix;
 
     // info about planted c4.
     bool                                    planted;
@@ -120,6 +144,9 @@ public:
     void DrawHistorySkeleton(Player* player, int opacity);
     void DrawSkeleton(Player* player, int opacity);
     void RenderGlow();
+    void AddMatrix(Player* player, matrix3x4_t* bones);
+    void override_material(bool ignoreZ, bool use_env, Color& color, IMaterial* material);
+    void on_post_screen_effects();
     void DrawHitboxMatrix(LagRecord* record, Color col, float time);
     void DrawBeams();
     void DebugAimbotPoints(Player* player);

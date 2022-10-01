@@ -158,6 +158,8 @@ bool Hooks::CreateMove(float time, CUserCmd* cmd) {
 
 bool Hooks::DoPostScreenSpaceEffects( CViewSetup* setup ) {
 	g_visuals.RenderGlow( );
+	
+	g_visuals.on_post_screen_effects();
 
 	return g_hooks.m_client_mode.GetOldMethod< DoPostScreenSpaceEffects_t >( IClientMode::DOPOSTSPACESCREENEFFECTS )( this, setup );
 }

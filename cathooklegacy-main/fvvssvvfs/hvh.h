@@ -21,8 +21,6 @@ public:
 	}
 };
 
-static constexpr long double M_PIRAD = 0.01745329251f;
-
 class __declspec(align(16))VectorAligned : public vec3_t {
 public:
 	VectorAligned(float _x, float _y, float _z) {

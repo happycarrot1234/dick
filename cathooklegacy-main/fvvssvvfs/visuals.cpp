@@ -1849,6 +1849,115 @@ void Visuals::RenderGlow() {
 	}
 }
 
+void Visuals::AddMatrix(Player* player, matrix3x4_t* bones) {
+	auto& hit = m_hit_matrix.emplace_back();
+
+	std::memcpy(hit.pBoneToWorld, bones, player->bone_cache().count() * sizeof(matrix3x4_t));
+
+	hit.time = g_csgo.m_globals->m_realtime;//g_csgo.m_globals->m_realtime + g_menu.main.players.chams_shot_fadetime.get();
+
+	static int m_nSkin = 0xA1C;
+	static int m_nBody = 0xA20;
+
+	hit.info.m_origin = player->GetAbsOrigin();
+	hit.info.m_angles = player->GetAbsAngles();
+
+	auto renderable = player->renderable();
+	if (!renderable)
+		return;
+
+	auto model = player->GetModel();
+	if (!model)
+		return;
+
+	auto hdr = *(studiohdr_t**)(player->GetModelPtr());
+	if (!hdr)
+		return;
+
+	hit.state.m_pStudioHdr = hdr;
+	hit.state.m_pStudioHWData = g_csgo.m_model_cache->GetHardwareData(model->m_studio);
+	hit.state.m_pRenderable = renderable;
+	hit.state.m_drawFlags = 0;
+
+	hit.info.m_renderable = renderable;
+	hit.info.m_model = model;
+	hit.info.m_lighting_offset = nullptr;
+	hit.info.m_lighting_origin = nullptr;
+	hit.info.m_hitboxset = player->m_nHitboxSet();
+	hit.info.m_skin = (int)(uintptr_t(player) + m_nSkin);
+	hit.info.m_body = (int)(uintptr_t(player) + m_nBody);
+	hit.info.m_index = player->index();
+	hit.info.m_instance = util::get_method<ModelInstanceHandle_t(__thiscall*)(void*) >(renderable, 30u)(renderable);
+	hit.info.m_flags = 0x1;
+
+	hit.info.m_model_to_world = &hit.model_to_world;
+	hit.state.m_pModelToWorld = &hit.model_to_world;
+
+	math::angle_matrix(hit.info.m_angles, hit.info.m_origin, hit.model_to_world);
+}
+
+void Visuals::override_material(bool ignoreZ, bool use_env, Color& color, IMaterial* material) {
+	material->SetFlag(MATERIAL_VAR_IGNOREZ, ignoreZ);
+	material->IncrementReferenceCount();
+
+	bool found;
+	auto var = material->FindVar("$envmaptint", &found);
+
+	if (found)
+		var->set_vec_value(color.r(), color.g(), color.b());
+
+	g_csgo.m_studio_render->ForcedMaterialOverride(material);
+}
+
+void Visuals::on_post_screen_effects() {
+	if (!g_cl.m_processing)
+		return;
+
+	const auto local = g_cl.m_local;
+	if (!local || !g_menu.main.players.chams_shot.get() || !g_csgo.m_engine->IsInGame())
+		m_hit_matrix.clear();
+
+	if (m_hit_matrix.empty() || !g_csgo.m_model_render)
+		return;
+
+	auto ctx = g_csgo.m_material_system->get_render_context();
+	if (!ctx)
+		return;
+
+	auto it = m_hit_matrix.begin();
+
+	while (it != m_hit_matrix.end()) {
+		if (!it->state.m_pModelToWorld || !it->state.m_pRenderable || !it->state.m_pStudioHdr || !it->state.m_pStudioHWData ||
+			!it->info.m_renderable || !it->info.m_model_to_world || !it->info.m_model) {
+			++it;
+			continue;
+		}
+
+		auto alpha = 1.0f;
+		auto delta = g_csgo.m_globals->m_realtime - it->time;
+
+		if (delta > 0.0f) {
+			alpha -= delta;
+
+			if (delta > 1.0f) {
+				it = m_hit_matrix.erase(it);
+				continue;
+			}
+		}
+
+		auto alpha_color = (float)g_menu.main.players.chams_shot_blend.get() / 255.f;
+
+		Color ghost_color = g_menu.main.players.chams_shot_col.get();
+
+		g_csgo.m_render_view->SetBlend(alpha_color * alpha);
+		g_chams.SetupMaterial(g_chams.m_materials[g_menu.main.players.chams_shot_mat.get()], ghost_color, true);
+		g_csgo.m_model_render->DrawModelExecute(ctx, it->state, it->info, it->pBoneToWorld);
+		g_csgo.m_model_render->ForceMat(nullptr);
+
+		++it;
+	}
+}
+
 void Visuals::DrawHitboxMatrix(LagRecord* record, Color col, float time) {
 	if (!g_menu.main.aimbot.debugaim.get())
 		return;
