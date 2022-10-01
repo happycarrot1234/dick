@@ -318,6 +318,9 @@
     <ClInclude Include="hitsounds.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="minhook\minhook.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bonesetup.cpp">
@@ -481,16 +484,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\Desktop\paster folder\cobalt\minhook.lib">
-      <Filter>Source Files</Filter>
-    </Library>
-    <Library Include="minhook\mihook-mtd.lib">
-      <Filter>Source Files</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\.gitignore">
       <Filter>Source Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="minhook\mihook-mtd.lib">
+      <Filter>Source Files</Filter>
+    </Library>
+    <Library Include="minhook.lib">
+      <Filter>Source Files</Filter>
+    </Library>
   </ItemGroup>
 </Project>

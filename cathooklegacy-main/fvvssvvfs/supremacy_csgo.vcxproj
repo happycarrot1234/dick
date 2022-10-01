@@ -256,6 +256,7 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="memalloc.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="minhook\minhook.h" />
     <ClInclude Include="modules.h" />
     <ClInclude Include="movement.h" />
     <ClInclude Include="multidropdown.h" />
@@ -351,11 +352,11 @@
     <ClCompile Include="wndproc.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\Desktop\paster folder\cobalt\minhook.lib" />
-    <Library Include="minhook\mihook-mtd.lib" />
+    <None Include="..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.gitignore" />
+    <Library Include="minhook.lib" />
+    <Library Include="minhook\mihook-mtd.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
